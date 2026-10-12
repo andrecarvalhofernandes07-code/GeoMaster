@@ -1,259 +1,253 @@
-
+ 
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#07111f">
 <title>GeoMaster</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#07111f;color:#fff;font-family:Arial,sans-serif}
-header{padding:22px;background:#102139}
-h1{color:#43e6a0;margin:0}
-header p,.cinza{color:#b5c5d8}
-nav{display:flex;gap:7px;padding:12px;overflow:auto;background:#0c192a}
-button{padding:12px;border:0;border-radius:10px;font-weight:bold;cursor:pointer}
-nav button{background:#20334b;color:white;white-space:nowrap}
-.ativo,.verde{background:#43e6a0;color:#07111f}
-main{max-width:650px;margin:auto;padding:15px}
-.card{background:#102139;border:1px solid #263b54;border-radius:16px;padding:18px;margin-bottom:14px}
-.escondido{display:none}
-.opcao{display:block;width:100%;margin-top:10px;background:#20334b;color:white;text-align:left}
-.certa{background:#167448}
-.errada{background:#963747}
-.numero{font-size:27px;color:#43e6a0;font-weight:bold}
-.grade{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-select{width:100%;padding:12px;border-radius:10px;margin:12px 0}
-.barra{height:10px;background:#263b54;border-radius:20px;overflow:hidden}
-.barra div{height:100%;background:#43e6a0;width:0}
-footer{text-align:center;padding:20px;color:#9aacc0}
+body{margin:0;background:#07111f;color:#f4f7ff;font-family:Arial,sans-serif}
+header{padding:20px;text-align:center;background:#101e33;border-bottom:2px solid #24d6a1}
+h1{color:#24d6a1;margin:5px}
+main{max-width:750px;margin:auto;padding:16px}
+.card{background:#12233b;border:1px solid #263e5c;border-radius:16px;padding:17px;margin:14px 0}
+button{background:#24d6a1;color:#07111f;border:0;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer;margin:4px}
+button:disabled{opacity:.4}
+.option{display:block;width:100%;text-align:left;background:#203650;color:white}
+.small{color:#a9bdd6;font-size:14px}
+.stat{display:inline-block;background:#203650;padding:10px;border-radius:10px;margin:3px}
+#feedback{font-weight:bold;margin:12px 0}
+.progress{height:10px;background:#203650;border-radius:20px;overflow:hidden}
+#bar{height:100%;width:0;background:#24d6a1}
 </style>
 </head>
 <body>
 <header>
 <h1>🌎 GeoMaster</h1>
-<p>Explore o mundo. Teste seus conhecimentos!</p>
+<p>Explore o mundo. Ganhe XP. Torne-se lendário!</p>
 </header>
-
-<nav>
-<button class="ativo" onclick="abrir('inicio',this)">Início</button>
-<button onclick="abrir('quiz',this)">Jogar</button>
-<button onclick="abrir('mundo',this)">GeoMundo</button>
-<button onclick="abrir('perfil',this)">Meu perfil</button>
-</nav>
-
 <main>
-<section id="inicio">
 <div class="card">
-<h2>Bem-vindo ao GeoMaster!</h2>
-<p class="cinza">Aprenda Geografia jogando, ganhe XP e desbloqueie conquistas.</p>
-<button class="verde" onclick="abrir('quiz')">🎮 Começar a jogar</button>
+<div class="stat">⭐ XP: <b id="xp">0</b></div>
+<div class="stat">🏆 Nível: <b id="level">1</b></div>
+<div class="stat">🌍 Mundo: <b id="world">1</b></div>
+<div class="stat">📍 Fase: <b id="phase">1</b></div>
+<div class="progress"><div id="bar"></div></div>
 </div>
-<div class="grade">
-<div class="card">Pontos<div class="numero" id="pontosInicio">0</div></div>
-<div class="card">Nível<div class="numero" id="nivelInicio">1</div></div>
-</div>
-<div class="card">
-<h3>🎯 Sua missão</h3>
-<p>Responda perguntas e descubra novos lugares do mundo!</p>
-</div>
-</section>
 
-<section id="quiz" class="escondido">
 <div class="card">
-<p class="cinza" id="progresso"></p>
-<div class="barra"><div id="barraQuiz"></div></div>
-<h2 id="pergunta"></h2>
-<div id="opcoes"></div>
-<p id="feedback" aria-live="polite"></p>
-<button id="proxima" class="verde escondido" onclick="proxima()">Próxima ➜</button>
-<button id="reiniciar" class="verde escondido" onclick="reiniciar()">Jogar novamente ↻</button>
-</div>
-</section>
-
-<section id="mundo" class="escondido">
-<div class="card">
-<h2>🗺️ GeoMundo</h2>
-<p class="cinza">Escolha um país para descobrir informações.</p>
-<select id="seletorPais" onchange="mostrarPais()">
-<option value="brasil">🇧🇷 Brasil</option>
-<option value="portugal">🇵🇹 Portugal</option>
-<option value="japao">🇯🇵 Japão</option>
-<option value="egito">🇪🇬 Egito</option>
-<option value="canada">🇨🇦 Canadá</option>
-<option value="australia">🇦🇺 Austrália</option>
-<option value="franca">🇫🇷 França</option>
-<option value="argentina">🇦🇷 Argentina</option>
+<h2>🥷 Seu personagem</h2>
+<select id="hero" onchange="chooseHero()" style="padding:10px;border-radius:8px;max-width:100%">
+<option>Akira</option><option>Kenzo</option><option>Hiro</option><option>Daichi</option>
 </select>
-<div id="infoPais"></div>
+<p id="heroInfo" class="small">Escolha seu personagem!</p>
 </div>
-</section>
 
-<section id="perfil" class="escondido">
 <div class="card">
-<h2>🏆 Meu perfil</h2>
-<div class="grade">
-<div class="card">XP total<div class="numero" id="xpPerfil">0</div></div>
-<div class="card">Nível<div class="numero" id="nivelPerfil">1</div></div>
-<div class="card">Acertos<div class="numero" id="acertosPerfil">0</div></div>
-<div class="card">Respondidas<div class="numero" id="respondidasPerfil">0</div></div>
+<h2>🗺️ Desafio geográfico</h2>
+<p id="worldName">Mundo 1 — Continentes</p>
+<h3 id="question">Carregando pergunta...</h3>
+<div id="answers"></div>
+<div id="feedback"></div>
+<p id="counter" class="small">Pergunta 1 de 10</p>
+<button id="next" onclick="nextQuestion()" hidden>Próxima pergunta ➜</button>
 </div>
-<h3>Próximo nível</h3>
-<div class="barra"><div id="barraXP"></div></div>
-<p id="textoXP" class="cinza"></p>
-<h3>Conquistas</h3>
-<p id="conquistas">🔒 Continue jogando para conquistar medalhas!</p>
+
+<div class="card">
+<h2>🔓 Personagens</h2>
+<div id="characters"></div>
 </div>
-</section>
+
+<div class="card">
+<h2>🏅 Conquistas</h2>
+<div id="achievements">Complete fases para ganhar conquistas!</div>
+</div>
+
+<div class="card">
+<h2>📚 Mundos</h2>
+<div id="worlds"></div>
+</div>
+
+<div class="card">
+<button onclick="resetGame()" style="background:#ff7979">Reiniciar jogo</button>
+<p class="small">O progresso fica salvo neste navegador.</p>
+</div>
 </main>
 
-<footer>GeoMaster © 2026 · Aprenda se divertindo!</footer>
-
 <script>
-const perguntas=[
-{p:"Qual é a capital do Brasil?",o:["São Paulo","Brasília","Salvador","Recife"],r:1},
-{p:"Qual é o maior continente?",o:["Europa","África","Ásia","Oceania"],r:2},
-{p:"Qual país tem formato de bota?",o:["Itália","Japão","Canadá","México"],r:0},
-{p:"Qual é a capital de Portugal?",o:["Porto","Lisboa","Madri","Roma"],r:1},
-{p:"Em qual continente fica o Egito?",o:["Ásia","África","Europa","América"],r:1},
-{p:"Qual é a capital do Japão?",o:["Pequim","Seul","Tóquio","Bangkok"],r:2},
-{p:"Qual é o maior oceano?",o:["Atlântico","Índico","Pacífico","Ártico"],r:2},
-{p:"Em qual país fica a Torre Eiffel?",o:["França","Alemanha","Itália","Espanha"],r:0},
-{p:"Qual é a capital da Argentina?",o:["Lima","Santiago","Buenos Aires","Bogotá"],r:2},
-{p:"Qual é o maior país do mundo em área?",o:["China","Canadá","Rússia","Brasil"],r:2}
+const heroes=[
+{name:"Akira",cost:0,skill:"Equilíbrio: personagem inicial."},
+{name:"Kenzo",cost:150,skill:"Conhecimento: especialista em mapas."},
+{name:"Hiro",cost:400,skill:"Explorador: especialista em natureza."},
+{name:"Daichi",cost:700,skill:"Estrategista: especialista em capitais."},
+{name:"Ryu Lendário",cost:2000,skill:"Lendário: mestre da geografia."}
 ];
 
-const paises={
-brasil:["Brasil 🇧🇷","Brasília","América do Sul","É o maior país da América do Sul."],
-portugal:["Portugal 🇵🇹","Lisboa","Europa","O português é a língua oficial."],
-japao:["Japão 🇯🇵","Tóquio","Ásia","É formado por milhares de ilhas."],
-egito:["Egito 🇪🇬","Cairo","África","É conhecido pelas antigas pirâmides."],
-canada:["Canadá 🇨🇦","Ottawa","América do Norte","É o segundo maior país do mundo em área."],
-australia:["Austrália 🇦🇺","Camberra","Oceania","Seu território inclui o continente australiano."],
-franca:["França 🇫🇷","Paris","Europa","A Torre Eiffel fica em Paris."],
-argentina:["Argentina 🇦🇷","Buenos Aires","América do Sul","É um país conhecido pelo tango."]
+const worlds=[
+"Continentes e oceanos","Capitais do mundo","Bandeiras","Geografia do Brasil",
+"Relevo e natureza","Climas e biomas","Cidades e pontos turísticos",
+"Mapas e localização","Países do mundo","Desafio mundial"
+];
+
+const questions=[
+["Qual é o maior continente do mundo?","Ásia","Europa","Oceania","África",0],
+["Qual é o menor continente?","África","Oceania","Ásia","América",1],
+["Qual é o maior oceano?","Atlântico","Índico","Pacífico","Ártico",2],
+["Em qual continente fica o Brasil?","Europa","América do Sul","Ásia","África",1],
+["Qual é a capital do Brasil?","São Paulo","Rio de Janeiro","Brasília","Salvador",2],
+["Qual é a capital da Argentina?","Lima","Buenos Aires","Santiago","Montevidéu",1],
+["Qual é a capital da França?","Roma","Paris","Lisboa","Berlim",1],
+["Qual é a capital do Japão?","Seul","Pequim","Tóquio","Bangkok",2],
+["Qual é a capital de Portugal?","Lisboa","Madri","Porto","Roma",0],
+["Qual é a capital do Chile?","Lima","Santiago","Bogotá","Caracas",1],
+["Qual país tem formato semelhante a uma bota?","Itália","Canadá","Egito","Índia",0],
+["Qual é a maior floresta tropical do mundo?","Taiga","Amazônia","Mata Atlântica","Savana",1],
+["Qual é o maior país do mundo em área?","China","Brasil","Rússia","Canadá",2],
+["Qual é o rio com maior volume de água do mundo?","Nilo","Amazonas","Tâmisa","Danúbio",1],
+["Qual é o deserto quente mais extenso?","Saara","Atacama","Gobi","Kalahari",0],
+["Em qual continente fica o Egito?","Europa","África","Oceania","América",1],
+["Qual é a montanha mais alta do mundo?","Everest","Kilimanjaro","Aconcágua","Mont Blanc",0],
+["Qual é o idioma oficial do Brasil?","Espanhol","Português","Inglês","Francês",1],
+["Qual oceano banha o litoral brasileiro?","Pacífico","Índico","Atlântico","Ártico",2],
+["Qual é a capital da Itália?","Atenas","Roma","Viena","Paris",1],
+["Qual é a capital do Uruguai?","Assunção","Montevidéu","Quito","La Paz",1],
+["Qual é a capital do Peru?","Lima","Cusco","Caracas","Quito",0],
+["Qual é a capital da Alemanha?","Berlim","Viena","Varsóvia","Praga",0],
+["Qual é a capital da Espanha?","Barcelona","Madri","Sevilha","Lisboa",1],
+["Qual é a capital do Canadá?","Toronto","Vancouver","Ottawa","Montreal",2],
+["Qual é a capital da Austrália?","Sydney","Melbourne","Canberra","Perth",2],
+["Qual é a capital da China?","Xangai","Pequim","Hong Kong","Tóquio",1],
+["Qual é a capital da Coreia do Sul?","Seul","Tóquio","Hanói","Manila",0],
+["Qual é a capital do México?","Cancún","Guadalajara","Cidade do México","Monterrey",2],
+["Qual é a capital da Colômbia?","Bogotá","Medellín","Cali","Quito",0],
+["Qual é o maior estado brasileiro em área?","Amazonas","Paraná","Bahia","São Paulo",0],
+["Em qual região brasileira fica Santa Catarina?","Norte","Nordeste","Sul","Centro-Oeste",2],
+["Qual é a capital de Santa Catarina?","Joinville","Florianópolis","Blumenau","Chapecó",1],
+["Qual é a capital do Paraná?","Curitiba","Londrina","Maringá","Cascavel",0],
+["Qual é a capital do Rio Grande do Sul?","Caxias do Sul","Pelotas","Porto Alegre","Gramado",2],
+["Qual é o bioma predominante no sertão nordestino?","Pampa","Caatinga","Pantanal","Pampa",1],
+["Qual bioma é conhecido por suas áreas alagadas?","Pantanal","Caatinga","Pampa","Cerrado",0],
+["Qual é a principal característica do clima equatorial?","Frio seco","Calor e umidade","Neve constante","Pouca chuva sempre",1],
+["Qual é o ponto turístico localizado no Rio de Janeiro?","Cristo Redentor","Torre Eiffel","Coliseu","Big Ben",0],
+["Em qual país fica a Torre Eiffel?","Itália","França","Espanha","Alemanha",1],
+["Em qual país fica o Coliseu?","Grécia","Itália","Turquia","Egito",1],
+["Em qual país ficam as pirâmides de Gizé?","México","Egito","Índia","Peru",1],
+["Qual linha divide a Terra em hemisférios Norte e Sul?","Trópico de Câncer","Linha do Equador","Meridiano de Greenwich","Círculo Polar",1],
+["Qual é o meridiano de referência da longitude?","Greenwich","Equador","Trópico de Capricórnio","Meridiano do Pacífico",0],
+["O que um mapa político mostra principalmente?","Fronteiras e divisões","Temperatura diária","Profundidade dos mares","Tipos de nuvens",0],
+["O que representa a escala de um mapa?","A distância entre cidades reais e no mapa","A temperatura","A população mundial","A altitude do avião",0],
+["Qual é o continente mais frio?","Europa","Antártida","Ásia","América",1],
+["Qual é o continente mais populoso?","Ásia","África","Europa","Oceania",0],
+["Qual país é conhecido como Terra do Sol Nascente?","China","Japão","Índia","Tailândia",1],
+["Qual é a capital do Reino Unido?","Londres","Dublin","Manchester","Edimburgo",0]
+];
+
+const defaultData={
+xp:0,unlocked:1,world:1,phase:1,hero:"Akira",owned:["Akira"],
+completed:[],achievements:[]
 };
-
-let pontos=0,xp=0,acertos=0,respondidas=0,indice=0,respondeu=false;
-
+let data;
 try{
-let dados=JSON.parse(localStorage.getItem("geoDados")||"{}");
-pontos=dados.pontos||0;
-xp=dados.xp||0;
-acertos=dados.acertos||0;
-respondidas=dados.respondidas||0;
-}catch(e){}
+data=JSON.parse(localStorage.getItem("geoDadosNovo"))||defaultData;
+}catch(e){data=JSON.parse(JSON.stringify(defaultData))}
+let qi=0,score=0,answered=false,round=[];
 
-function salvar(){
-try{
-localStorage.setItem("geoDados",JSON.stringify({pontos,xp,acertos,respondidas}));
-}catch(e){}
-atualizar();
+function save(){
+localStorage.setItem("geoDadosNovo",JSON.stringify(data));
+render();
 }
-
-function abrir(id,botao){
-document.querySelectorAll("main section").forEach(s=>s.classList.add("escondido"));
-document.getElementById(id).classList.remove("escondido");
-document.querySelectorAll("nav button").forEach(b=>b.classList.remove("ativo"));
-if(botao)botao.classList.add("ativo");
-if(id==="quiz")renderizar();
-if(id==="mundo")mostrarPais();
-atualizar();
-window.scrollTo(0,0);
+function render(){
+document.getElementById("xp").textContent=data.xp;
+document.getElementById("level").textContent=Math.floor(data.xp/100)+1;
+document.getElementById("world").textContent=data.world;
+document.getElementById("phase").textContent=data.phase;
+document.getElementById("bar").style.width=((data.phase-1)/10*100)+"%";
+document.getElementById("hero").value=data.hero;
+document.getElementById("heroInfo").textContent=heroes.find(h=>h.name===data.hero)?.skill||"Explorador";
+document.getElementById("characters").innerHTML=heroes.map(h=>{
+let owned=data.owned.includes(h.name);
+return `<div class="card"><b>${h.name}</b> — ${h.cost} XP<p class="small">${h.skill}</p>${owned?"✅ Desbloqueado":`<button onclick="buy('${h.name}')" ${data.xp<h.cost?"disabled":""}>Desbloquear</button>`}</div>`;
+}).join("");
+document.getElementById("worlds").innerHTML=worlds.map((w,i)=>`<p>${i+1}. ${w} ${data.unlocked>i*10?"🔓":"🔒"}</p>`).join("");
+document.getElementById("achievements").textContent=data.achievements.length?data.achievements.join(" • "):"Complete sua primeira fase!";
 }
-
-function renderizar(){
-const q=perguntas[indice];
-respondeu=false;
-document.getElementById("progresso").textContent=
-"Pergunta "+(indice+1)+" de "+perguntas.length;
-document.getElementById("barraQuiz").style.width=
-((indice+1)/perguntas.length*100)+"%";
-document.getElementById("pergunta").textContent=q.p;
+function chooseHero(){
+let name=document.getElementById("hero").value;
+if(data.owned.includes(name)){data.hero=name;save()}
+}
+function buy(name){
+let h=heroes.find(x=>x.name===name);
+if(!h||data.owned.includes(name)||data.xp<h.cost)return;
+data.xp-=h.cost;data.owned.push(name);data.hero=name;save();
+}
+function startRound(){
+qi=0;score=0;answered=false;
+round=[];
+for(let i=0;i<10;i++)round.push(questions[(data.world*7+data.phase*3+i-1)%questions.length]);
+document.getElementById("worldName").textContent=`Mundo ${data.world} — ${worlds[data.world-1]}`;
+showQuestion();
+}
+function showQuestion(){
+answered=false;
+let q=round[qi];
+document.getElementById("question").textContent=q[0];
+document.getElementById("counter").textContent=`Pergunta ${qi+1} de 10 • 🥷 ${["Akira","Kenzo","Hiro","Daichi"][qi%4]}`;
 document.getElementById("feedback").textContent="";
-document.getElementById("proxima").classList.add("escondido");
-document.getElementById("reiniciar").classList.add("escondido");
-const area=document.getElementById("opcoes");
-area.innerHTML="";
-q.o.forEach((texto,i)=>{
-let b=document.createElement("button");
-b.className="opcao";
-b.textContent=texto;
-b.onclick=()=>responder(i,b);
-area.appendChild(b);
-});
+document.getElementById("next").hidden=true;
+document.getElementById("answers").innerHTML=q.slice(1,5).map((a,i)=>`<button class="option" onclick="answer(${i})">${["A","B","C","D"][i]}) ${a}</button>`).join("");
 }
-
-function responder(escolha,botao){
-if(respondeu)return;
-respondeu=true;
-respondidas++;
-const q=perguntas[indice];
-document.querySelectorAll(".opcao").forEach((b,i)=>{
-b.disabled=true;
-if(i===q.r)b.classList.add("certa");
-});
-if(escolha===q.r){
-pontos+=10;
-xp+=10;
-acertos++;
-document.getElementById("feedback").textContent="✅ Correto! Você ganhou 10 XP!";
+function answer(i){
+if(answered)return;
+answered=true;
+let q=round[qi],buttons=document.querySelectorAll("#answers button");
+buttons.forEach(b=>b.disabled=true);
+if(i===q[5]){
+score++;data.xp+=10;
+document.getElementById("feedback").textContent="✅ Correto! +10 XP";
 }else{
-botao.classList.add("errada");
-document.getElementById("feedback").textContent="❌ A resposta correta é: "+q.o[q.r];
+document.getElementById("feedback").textContent="❌ Resposta: "+q[q[5]+1];
 }
-salvar();
-if(indice===perguntas.length-1){
-document.getElementById("proxima").classList.add("escondido");
-document.getElementById("reiniciar").classList.remove("escondido");
-}else{
-document.getElementById("proxima").classList.remove("escondido");
+save();
+document.getElementById("next").hidden=false;
+document.getElementById("next").textContent=qi===9?"Ver resultado 🏆":"Próxima pergunta ➜";
 }
+function nextQuestion(){
+if(!answered)return;
+if(qi<9){qi++;showQuestion();return}
+finishRound();
 }
-
-function proxima(){
-if(indice<perguntas.length-1){
-indice++;
-renderizar();
+function finishRound(){
+let passed=score>=7;
+let key=data.world+"-"+data.phase;
+if(passed&&!data.completed.includes(key)){
+data.completed.push(key);data.xp+=50;
+if(data.completed.length===1)data.achievements.push("🏅 Primeira fase");
+if(data.completed.length>=10&&!data.achievements.includes("🌟 Dez fases"))data.achievements.push("🌟 Dez fases");
+if(data.completed.length>=100&&!data.achievements.includes("👑 Mestre mundial"))data.achievements.push("👑 Mestre mundial");
+if(data.phase<10)data.phase++;
+else if(data.world<10){data.world++;data.phase=1}
+data.unlocked=Math.max(data.unlocked,(data.world-1)*10+data.phase);
 }
+save();
+document.getElementById("question").textContent=passed?"🎉 Fase concluída!":"💪 Tente novamente!";
+document.getElementById("answers").innerHTML="";
+document.getElementById("feedback").textContent=`Você acertou ${score}/10. `+(passed?"Fase desbloqueada! +50 XP. 🐢 Akira, Kenzo, Hiro e Daichi comemoram juntos!":"Você precisa de pelo menos 7 acertos. Tente novamente.");
+document.getElementById("counter").textContent="Resultado da fase";
+document.getElementById("next").hidden=false;
+document.getElementById("next").textContent="Jogar fase";
+document.getElementById("next").onclick=startRound;
 }
-
-function reiniciar(){
-indice=0;
-renderizar();
+function resetGame(){
+if(!confirm("Apagar todo o progresso?"))return;
+localStorage.removeItem("geoDadosNovo");
+data=JSON.parse(JSON.stringify(defaultData));
+startRound();save();
 }
-
-function mostrarPais(){
-const p=paises[document.getElementById("seletorPais").value];
-document.getElementById("infoPais").innerHTML=
-"<h2>"+p[0]+"</h2><p><b>Capital:</b> "+p[1]+"</p>"+
-"<p><b>Continente:</b> "+p[2]+"</p>"+
-"<p><b>Curiosidade:</b> "+p[3]+"</p>";
-}
-
-function atualizar(){
-const nivel=Math.floor(xp/50)+1;
-document.getElementById("pontosInicio").textContent=pontos;
-document.getElementById("nivelInicio").textContent=nivel;
-document.getElementById("xpPerfil").textContent=xp;
-document.getElementById("nivelPerfil").textContent=nivel;
-document.getElementById("acertosPerfil").textContent=acertos;
-document.getElementById("respondidasPerfil").textContent=respondidas;
-document.getElementById("barraXP").style.width=(xp%50/50*100)+"%";
-document.getElementById("textoXP").textContent=
-(xp%50)+" de 50 XP para o próximo nível.";
-let lista=[];
-if(acertos>=1)lista.push("🥉 Primeiro acerto");
-if(acertos>=5)lista.push("🥈 Cinco acertos");
-if(acertos>=10)lista.push("🥇 Dez acertos");
-document.getElementById("conquistas").textContent=
-lista.length?lista.join(" · "):"🔒 Acerte perguntas para desbloquear conquistas.";
-}
-
-mostrarPais();
-atualizar();
+render();
+startRound();
 </script>
 </body>
-  </html>
-  <!-- Atualização do GeoMaster -->
+</html>
+
