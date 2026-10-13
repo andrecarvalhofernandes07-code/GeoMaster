@@ -16,6 +16,7 @@
   --text: #f5f7ff;
   --muted: #a5b1d4;
   --red: #ff3864;
+  --purple: #b44dff;
 }
 
 * { box-sizing: border-box; }
@@ -174,12 +175,52 @@ p {
 .card h3 { margin: 8px 0; }
 .card p { font-size: 14px; }
 
-.world-icon {
-  font-size: 35px;
-  filter: drop-shadow(0 0 8px #8b6cff55);
+/* Estilos do Mapa Interativo SVG */
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+select {
+  border: 1px solid #00f5ff77; border-radius: 8px; background: #0a1830; color: var(--text);
+  padding: 11px; font-size: 14px;
 }
+select:focus { border-color: var(--gold); box-shadow: 0 0 12px #00f5ff33; }
 
-.locked { opacity: .5; }
+#mapWrap {
+  position: relative; overflow: hidden; border: 1px solid #00f5ff66; border-radius: 14px;
+  background: linear-gradient(145deg,#07172b,#030711);
+  box-shadow: 0 0 25px #00d9ff16;
+}
+#map { display: block; width: 100%; height: auto; min-height: 280px; }
+.graticule { fill: none; stroke: #00d9ff17; stroke-width: 1; }
+.land {
+  fill: #123b55; stroke: #00eaff; stroke-width: 1.4;
+  filter: drop-shadow(0 0 5px #00eaff66);
+}
+.country-label {
+  fill: #b8faff; font-size: 11px; text-anchor: middle;
+  paint-order: stroke; stroke: #06101e; stroke-width: 3px; stroke-linejoin: round;
+  pointer-events: none;
+}
+.continent-label {
+  fill: #00f5ff99; font-size: 14px; letter-spacing: 2px;
+  text-anchor: middle; pointer-events: none;
+}
+.marker { cursor: pointer; }
+.marker circle {
+  fill: #071528; stroke: var(--mint); stroke-width: 2;
+  filter: drop-shadow(0 0 5px #00f5ff);
+}
+.marker text {
+  fill: white; text-anchor: middle; dominant-baseline: central; font-size: 10px;
+  pointer-events: none; font-weight: bold;
+}
+.marker.locked circle { stroke: #64748b; fill: #182235; filter: none; }
+.marker.done circle { stroke: var(--gold); fill: #624514; }
+.marker.selected circle { stroke: var(--purple); stroke-width: 4; filter: drop-shadow(0 0 8px #b44dff); }
+.marker:hover circle { stroke: var(--gold); stroke-width: 3; }
+
+.legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 12px; font-size: 12px; color: #b5d1e8; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
+
+.note { font-size: 12px; color: #7898b2; text-align: center; margin: 12px; }
 
 .progress {
   height: 9px;
@@ -278,11 +319,6 @@ p {
   font-weight: bold;
 }
 
-.small {
-  font-size: 13px;
-  color: var(--muted);
-}
-
 .badge {
   display: inline-block;
   padding: 7px 10px;
@@ -300,14 +336,8 @@ footer {
 }
 
 @keyframes aparecer {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes flutuar {
@@ -322,13 +352,6 @@ footer {
   h1 { font-size: 26px; }
   #questionText { font-size: 19px; }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
-    transition-duration: .01ms !important;
-  }
-}
 </style>
 </head>
 
@@ -339,6 +362,7 @@ footer {
 </header>
 
 <main>
+  <!-- HOME -->
   <section id="home" class="page active">
     <div class="hero-banner">
       <div class="ninja">🥷</div>
@@ -360,13 +384,105 @@ footer {
     </div>
   </section>
 
+  <!-- MAPA INTERATIVO -->
   <section id="map" class="page">
-    <h1>🗺️ Mundos</h1>
-    <p>Escolha um mundo e avance pelas fases.</p>
-    <div id="worldList" class="grid"></div>
-    <button class="btn secondary" onclick="showPage('home')">← Voltar ao início</button>
+    <h1>🗺️ MAPA DE MISSÕES</h1>
+    <p>Selecione um marcador no mapa para consultar e iniciar a fase.</p>
+    
+    <div class="toolbar">
+      <select id="regionSelect" aria-label="Filtrar região">
+        <option value="all">🌐 Mundo inteiro</option>
+        <option value="america">🌎 Américas</option>
+        <option value="europe">🌍 Europa</option>
+        <option value="asia">🌏 Ásia</option>
+        <option value="africa">🌍 África</option>
+        <option value="oceania">🌊 Oceania</option>
+      </select>
+      <button onclick="zoomIn()">＋ Zoom</button>
+      <button onclick="zoomOut()">－ Zoom</button>
+      <button onclick="resetZoom()">↺ Mapa inteiro</button>
+    </div>
+
+    <div id="mapWrap">
+      <svg id="svgMap" viewBox="0 0 1000 500" role="img" aria-label="Mapa-múndi interativo">
+        <defs>
+          <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
+            <path d="M25 0H0V25" fill="none" stroke="#00eaff" stroke-opacity=".12"/>
+          </pattern>
+        </defs>
+        <rect width="1000" height="500" fill="url(#grid)"/>
+        <g id="world">
+          <g class="graticule">
+            <path d="M0 100H1000 M0 200H1000 M0 300H1000 M0 400H1000"/>
+            <path d="M200 0V500 M400 0V500 M600 0V500 M800 0V500"/>
+          </g>
+
+          <g id="lands">
+            <path class="land" data-region="america" d="M75 72 L122 48 171 65 205 95 187 125 157 141 151 175 130 203 120 242 94 225 82 190 57 162 49 126 62 100Z"/>
+            <path class="land" data-region="america" d="M169 226 L204 216 228 242 220 280 239 316 223 365 202 412 181 378 172 333 154 293 148 255Z"/>
+            <path class="land" data-region="europe" d="M433 87 L464 70 490 80 512 68 540 83 535 104 505 116 487 138 466 130 450 113Z"/>
+            <path class="land" data-region="africa" d="M461 151 L510 135 548 160 556 202 535 252 511 310 484 286 467 243 447 204Z"/>
+            <path class="land" data-region="asia" d="M525 81 L580 55 653 66 708 83 767 70 831 94 855 123 816 148 769 142 727 164 682 148 649 168 607 143 566 132 541 109Z"/>
+            <path class="land" data-region="asia" d="M615 158 L656 170 685 203 668 225 643 210 626 187Z"/>
+            <path class="land" data-region="oceania" d="M775 274 L821 255 864 276 874 306 850 329 810 323 782 304Z"/>
+            <path class="land" data-region="oceania" d="M886 348 L902 341 910 354 900 366Z"/>
+            <path class="land" data-region="america" d="M303 58 L319 45 334 54 326 69 310 73Z"/>
+            <path class="land" data-region="asia" d="M890 173 L916 166 931 181 918 194 895 192Z"/>
+          </g>
+
+          <g id="labels">
+            <text class="country-label" x="115" y="133">Canadá</text>
+            <text class="country-label" x="126" y="183">EUA</text>
+            <text class="country-label" x="190" y="260">México</text>
+            <text class="country-label" x="202" y="328">Brasil</text>
+            <text class="country-label" x="182" y="383">Argentina</text>
+            <text class="country-label" x="469" y="101">Reino Unido</text>
+            <text class="country-label" x="500" y="121">Alemanha</text>
+            <text class="country-label" x="476" y="176">Nigéria</text>
+            <text class="country-label" x="510" y="235">RD Congo</text>
+            <text class="country-label" x="506" y="277">África do Sul</text>
+            <text class="country-label" x="594" y="103">Rússia</text>
+            <text class="country-label" x="666" y="130">China</text>
+            <text class="country-label" x="710" y="190">Japão</text>
+            <text class="country-label" x="645" y="213">Índia</text>
+            <text class="country-label" x="822" y="300">Austrália</text>
+            <text class="country-label" x="896" y="380">Nova Zelândia</text>
+          </g>
+
+          <g id="continentLabels">
+            <text class="continent-label" x="135" y="30">AMÉRICA DO NORTE</text>
+            <text class="continent-label" x="200" y="450">AMÉRICA DO SUL</text>
+            <text class="continent-label" x="475" y="48">EUROPA</text>
+            <text class="continent-label" x="500" y="340">ÁFRICA</text>
+            <text class="continent-label" x="700" y="42">ÁSIA</text>
+            <text class="continent-label" x="830" y="240">OCEANIA</text>
+          </g>
+
+          <g id="markers"></g>
+        </g>
+      </svg>
+      <div class="legend">
+        <span><i class="dot" style="background:#00f5ff"></i>Disponível</span>
+        <span><i class="dot" style="background:#ffd166"></i>Concluída</span>
+        <span><i class="dot" style="background:#64748b"></i>Bloqueada</span>
+      </div>
+    </div>
+
+    <div class="card" id="infoCard" style="margin-top:14px;">
+      <h2 id="phaseName" style="color:var(--gold);margin:0 0 8px">FASE 01 — BRASIL</h2>
+      <p id="phaseDesc">Selecione um marcador no mapa para consultar a missão.</p>
+      <div class="stat-row">
+        <div class="stat"><strong id="phaseNum">01</strong><small>Mundo / Fase</small></div>
+        <div class="stat"><strong id="mapProgress">0/10</strong><small>Concluídas</small></div>
+        <div class="stat"><strong id="mapXP">0 XP</strong><small>Seu XP</small></div>
+      </div>
+      <button class="btn" id="startMapBtn" onclick="startSelectedWorld()">INICIAR FASE →</button>
+    </div>
+
+    <button class="btn secondary" style="margin-top:12px;" onclick="showPage('home')">← Voltar ao início</button>
   </section>
 
+  <!-- ESCOLHER NINJA -->
   <section id="heroes" class="page">
     <h1>🥷 Escolha seu ninja</h1>
     <p>Desbloqueie personagens usando XP.</p>
@@ -374,6 +490,7 @@ footer {
     <button class="btn secondary" onclick="showPage('home')">← Voltar</button>
   </section>
 
+  <!-- JOGO -->
   <section id="game" class="page">
     <button class="btn secondary" onclick="leaveGame()">✕ Sair da fase</button>
     <div class="question-card">
@@ -421,6 +538,7 @@ footer {
     </div>
   </section>
 
+  <!-- CONQUISTAS -->
   <section id="achievements" class="page">
     <h1>🏆 Conquistas</h1>
     <p>Complete desafios durante sua aventura.</p>
@@ -435,16 +553,16 @@ footer {
 "use strict";
 
 const worlds = [
-  {name:"Brasil",icon:"🇧🇷",desc:"Estados, cidades e geografia brasileira."},
-  {name:"América",icon:"🌎",desc:"Países e paisagens das Américas."},
-  {name:"Europa",icon:"🏰",desc:"Países, capitais e cultura europeia."},
-  {name:"Ásia",icon:"⛩️",desc:"Explore o maior continente."},
-  {name:"África",icon:"🦁",desc:"Desertos, rios e países africanos."},
-  {name:"Oceania",icon:"🦘",desc:"Austrália, ilhas e oceanos."},
-  {name:"Oceanos",icon:"🌊",desc:"Mares e oceanos do planeta."},
-  {name:"Montanhas",icon:"🏔️",desc:"Grandes montanhas e cordilheiras."},
-  {name:"Clima e natureza",icon:"🌦️",desc:"Biomas, clima e natureza."},
-  {name:"Desafio mundial",icon:"🌍",desc:"Teste seus conhecimentos gerais."}
+  {name:"Brasil",icon:"🇧🇷",region:"america",x:202,y:305,desc:"Estados, cidades e geografia brasileira."},
+  {name:"América",icon:"🌎",region:"america",x:126,y:160,desc:"Países e paisagens das Américas."},
+  {name:"Europa",icon:"🏰",region:"europe",x:500,y:112,desc:"Países, capitais e cultura europeia."},
+  {name:"Ásia",icon:"⛩️",region:"asia",x:665,y:126,desc:"Explore o maior continente."},
+  {name:"África",icon:"🦁",region:"africa",x:489,y:185,desc:"Desertos, rios e países africanos."},
+  {name:"Oceania",icon:"🦘",region:"oceania",x:826,y:294,desc:"Austrália, ilhas e oceanos."},
+  {name:"Oceanos",icon:"🌊",region:"america",x:350,y:220,desc:"Mares e oceanos do planeta."},
+  {name:"Montanhas",icon:"🏔️",region:"asia",x:695,y:165,desc:"Grandes montanhas e cordilheiras."},
+  {name:"Clima e natureza",icon:"🌦️",region:"america",x:235,y:350,desc:"Biomas, clima e natureza."},
+  {name:"Desafio mundial",icon:"🌍",region:"all",x:515,y:365,desc:"Teste seus conhecimentos gerais."}
 ];
 
 const heroes = [
@@ -568,14 +686,12 @@ const questions = [
 ];
 
 const defaultData = {
-  xp:0,
-  unlocked:1,
-  world:1,
-  phase:1,
-  hero:"akira",
-  owned:["akira"],
-  completed:[],
-  achievements:[]
+  xp: 0,
+  unlocked: 1,
+  hero: "akira",
+  owned: ["akira"],
+  completed: [],
+  achievements: []
 };
 
 let data;
@@ -593,57 +709,41 @@ let currentQuestions = [];
 let currentIndex = 0;
 let score = 0;
 let answered = false;
-let currentWorld = 1;
-let currentPhase = 1;
-let roundKey = "";
-let lastResultWon = false;
+let selectedWorldIndex = 0;
+
+// Variáveis do mapa SVG
+let scale = 1, offsetX = 0, offsetY = 0;
+const worldGroup = document.getElementById("world");
 
 function save() {
   try {
-    localStorage.setItem("geoDadosNovo",JSON.stringify(data));
+    localStorage.setItem("geoDadosNovo", JSON.stringify(data));
   } catch (e) {
-    console.warn("Não foi possível salvar o progresso.",e);
+    console.warn("Não foi possível salvar o progresso.", e);
   }
 }
 
 function level() {
-  return Math.floor(data.xp/200)+1;
-}
-
-function stageNumber(world,phase) {
-  return (world-1)*5+phase;
-}
-
-function isUnlocked(world,phase) {
-  return stageNumber(world,phase) <= data.unlocked;
-}
-
-function isDone(world,phase) {
-  return data.completed.includes(stageNumber(world,phase));
-}
-
-function heroName() {
-  const h=heroes.find(x=>x.id===data.hero);
-  return h ? h.name : "Akira";
+  return Math.floor(data.xp / 200) + 1;
 }
 
 function showPage(id) {
-  const page=document.getElementById(id);
+  const page = document.getElementById(id);
   if (!page) return;
 
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   page.classList.add("active");
 
-  if (id==="home") renderHome();
-  if (id==="map") renderMap();
-  if (id==="heroes") renderHeroes();
-  if (id==="achievements") renderAchievements();
+  if (id === "home") renderHome();
+  if (id === "map") renderMap();
+  if (id === "heroes") renderHeroes();
+  if (id === "achievements") renderAchievements();
 
-  window.scrollTo({top:0,behavior:"smooth"});
+  window.scrollTo({top: 0, behavior: "smooth"});
 }
 
 function renderAll() {
-  document.getElementById("xpDisplay").textContent=data.xp;
+  document.getElementById("xpDisplay").textContent = data.xp;
   renderHome();
   renderMap();
   renderHeroes();
@@ -651,253 +751,245 @@ function renderAll() {
 }
 
 function renderHome() {
-  document.getElementById("xpDisplay").textContent=data.xp;
-  document.getElementById("homeLevel").textContent=level();
+  document.getElementById("xpDisplay").textContent = data.xp;
+  document.getElementById("homeLevel").textContent = level();
 
-  const unlockedWorlds=Math.min(
-    worlds.length,
-    Math.max(1,Math.ceil(data.unlocked/5))
-  );
-
-  document.getElementById("homeWorlds").textContent=unlockedWorlds;
-  document.getElementById("homeWins").textContent=data.completed.length;
+  const unlockedCount = Math.min(worlds.length, data.unlocked);
+  document.getElementById("homeWorlds").textContent = unlockedCount;
+  document.getElementById("homeWins").textContent = data.completed.length;
 }
 
+// Funções do Mapa SVG
 function renderMap() {
-  const container=document.getElementById("worldList");
-  container.innerHTML="";
+  const markersContainer = document.getElementById("markers");
+  markersContainer.innerHTML = "";
 
-  worlds.forEach((world,i)=>{
-    const worldNum=i+1;
-    const firstStage=stageNumber(worldNum,1);
-    const unlocked=isUnlocked(worldNum,1);
-    const completed=data.completed.filter(n=>n>=firstStage&&n<firstStage+5).length;
+  worlds.forEach((w, i) => {
+    const worldNum = i + 1;
+    const unlocked = worldNum <= data.unlocked;
+    const completed = data.completed.includes(worldNum);
 
-    const card=document.createElement("div");
-    card.className="card"+(unlocked?"":" locked");
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("class", "marker" + (!unlocked ? " locked" : "") + (completed ? " done" : "") + (i === selectedWorldIndex ? " selected" : ""));
+    g.setAttribute("transform", `translate(${w.x},${w.y})`);
+    g.setAttribute("tabindex", "0");
+    g.setAttribute("role", "button");
+    g.setAttribute("aria-label", `Mundo ${worldNum}: ${w.name}`);
 
-    card.innerHTML=`
-      <div class="world-icon">${world.icon}</div>
-      <h3>${worldNum}. ${world.name}</h3>
-      <p>${world.desc}</p>
-      <div class="progress"><div style="width:${completed/5*100}%"></div></div>
-      <p>${completed}/5 fases concluídas</p>
-      <button class="btn ${unlocked?"":"secondary"}"
-        ${unlocked?"":"disabled"}
-        onclick="openWorld(${worldNum})">
-        ${unlocked?"Explorar":"🔒 Bloqueado"}
-      </button>
-    `;
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("r", "15");
 
-    container.appendChild(card);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("y", "1");
+    t.textContent = !unlocked ? "🔒" : completed ? "✓" : String(worldNum).padStart(2, "0");
+
+    g.append(c, t);
+    g.addEventListener("click", () => selectWorld(i));
+    markersContainer.append(g);
+  });
+
+  selectWorld(selectedWorldIndex);
+}
+
+function selectWorld(i) {
+  selectedWorldIndex = i;
+  const w = worlds[i];
+  const worldNum = i + 1;
+  const unlocked = worldNum <= data.unlocked;
+  const completed = data.completed.includes(worldNum);
+
+  document.getElementById("phaseName").textContent = `MUNDO ${String(worldNum).padStart(2, "0")} — ${w.name.toUpperCase()}`;
+  document.getElementById("phaseDesc").textContent = w.desc;
+  document.getElementById("phaseNum").textContent = String(worldNum).padStart(2, "0");
+  document.getElementById("mapProgress").textContent = `${data.completed.length}/${worlds.length}`;
+  document.getElementById("mapXP").textContent = `${data.xp} XP`;
+
+  const btn = document.getElementById("startMapBtn");
+  btn.disabled = !unlocked;
+  btn.style.opacity = unlocked ? "1" : ".5";
+  btn.textContent = completed ? "JOGAR NOVAMENTE →" : !unlocked ? "MUNDO BLOQUEADO" : "INICIAR FASE →";
+
+  renderMapMarkersHighlight();
+}
+
+function renderMapMarkersHighlight() {
+  const markers = document.querySelectorAll("#markers g");
+  markers.forEach((g, i) => {
+    g.classList.remove("selected");
+    if (i === selectedWorldIndex) {
+      g.classList.add("selected");
+    }
   });
 }
 
-function openWorld(worldNum) {
-  if (!isUnlocked(worldNum,1)) return;
-
-  const container=document.getElementById("worldList");
-  const world=worlds[worldNum-1];
-
-  container.innerHTML=`
-    <div class="card" style="grid-column:1/-1">
-      <div class="world-icon">${world.icon}</div>
-      <h2>${world.name}</h2>
-      <p>${world.desc}</p>
-      <p>Escolha uma das cinco fases:</p>
-      <div id="phaseList" class="grid"></div>
-      <button class="btn secondary" onclick="renderMap()">← Todos os mundos</button>
-    </div>
-  `;
-
-  const phases=document.getElementById("phaseList");
-
-  for (let phase=1;phase<=5;phase++) {
-    const unlocked=isUnlocked(worldNum,phase);
-    const done=isDone(worldNum,phase);
-    const card=document.createElement("div");
-    card.className="card"+(unlocked?"":" locked");
-
-    card.innerHTML=`
-      <h3>Fase ${phase}</h3>
-      <p>${done?"✅ Concluída":unlocked?"Disponível":"🔒 Bloqueada"}</p>
-      <button class="btn ${unlocked?"":"secondary"}"
-        ${unlocked?"":"disabled"}
-        onclick="startRound(${worldNum},${phase})">
-        ${done?"Jogar novamente":unlocked?"Jogar":"Bloqueada"}
-      </button>
-    `;
-
-    phases.appendChild(card);
+function startSelectedWorld() {
+  const worldNum = selectedWorldIndex + 1;
+  if (worldNum > data.unlocked) {
+    alert("Este mundo ainda está bloqueado!");
+    return;
   }
-
-  window.scrollTo({top:0,behavior:"smooth"});
+  startRound(selectedWorldIndex);
 }
 
+document.getElementById("regionSelect").addEventListener("change", e => {
+  const value = e.target.value;
+  document.querySelectorAll("#lands [data-region]").forEach(el => {
+    el.style.opacity = (value === "all" || el.dataset.region === value) ? 1 : .12;
+  });
+  const match = worlds.findIndex(w => value === "all" || w.region === value);
+  if (match >= 0) selectWorld(match);
+});
+
+function applyZoom() {
+  worldGroup.setAttribute("transform", `translate(${offsetX},${offsetY}) translate(500 250) scale(${scale}) translate(-500 -250)`);
+}
+function zoomIn() { scale = Math.min(2.2, scale + .15); applyZoom(); }
+function zoomOut() { scale = Math.max(.7, scale - .15); applyZoom(); }
+function resetZoom() {
+  scale = 1; offsetX = 0; offsetY = 0; applyZoom();
+  document.getElementById("regionSelect").value = "all";
+  document.querySelectorAll("#lands [data-region]").forEach(el => el.style.opacity = 1);
+}
+
+// Lógica de heróis
 function renderHeroes() {
-  const container=document.getElementById("heroList");
-  container.innerHTML="";
+  const container = document.getElementById("heroList");
+  container.innerHTML = "";
 
-  heroes.forEach(hero=>{
-    const owned=data.owned.includes(hero.id);
-    const selected=data.hero===hero.id;
-    const canBuy=data.xp>=hero.cost;
+  heroes.forEach(hero => {
+    const owned = data.owned.includes(hero.id);
+    const selected = data.hero === hero.id;
+    const canBuy = data.xp >= hero.cost;
 
-    const card=document.createElement("div");
-    card.className="card";
+    const card = document.createElement("div");
+    card.className = "card";
 
-    card.innerHTML=`
+    card.innerHTML = `
       <div class="ninja">${hero.icon}</div>
       <h3>${hero.name}</h3>
       <p>${hero.desc}</p>
-      <p class="gold">${hero.cost===0?"Grátis":"⚡ "+hero.cost+" XP"}</p>
-      <button class="btn ${selected?"secondary":""}"
-        ${selected?"disabled":""}
+      <p class="gold">${hero.cost === 0 ? "Grátis" : "⚡ " + hero.cost + " XP"}</p>
+      <button class="btn ${selected ? "secondary" : ""}"
+        ${selected ? "disabled" : ""}
         onclick="selectHero('${hero.id}')">
-        ${selected?"Selecionado":owned?"Selecionar":canBuy?"Desbloquear":"XP insuficiente"}
+        ${selected ? "Selecionado" : owned ? "Selecionar" : canBuy ? "Desbloquear" : "XP insuficiente"}
       </button>
     `;
-
-    if (!owned && !canBuy) {
-      card.querySelector("button").disabled=true;
-    }
 
     container.appendChild(card);
   });
 }
 
 function selectHero(id) {
-  const hero=heroes.find(h=>h.id===id);
+  const hero = heroes.find(h => h.id === id);
   if (!hero) return;
 
   if (!data.owned.includes(id)) {
-    if (data.xp<hero.cost) {
+    if (data.xp < hero.cost) {
       alert("Você ainda não tem XP suficiente!");
       return;
     }
-
-    data.xp-=hero.cost;
+    data.xp -= hero.cost;
     data.owned.push(id);
   }
 
-  data.hero=id;
+  data.hero = id;
   save();
   renderAll();
 }
 
 function continueGame() {
-  let stage=Math.min(data.unlocked,worlds.length*5);
-  let world=Math.floor((stage-1)/5)+1;
-  let phase=((stage-1)%5)+1;
-
-  if (!isUnlocked(world,phase)) {
-    world=1;
-    phase=1;
-  }
-
-  startRound(world,phase);
+  let targetWorld = Math.min(data.unlocked, worlds.length) - 1;
+  startRound(targetWorld);
 }
 
-function startRound(world,phase) {
-  if (!isUnlocked(world,phase)) {
+// Iniciar Rodada de Perguntas
+function startRound(worldIndex) {
+  selectedWorldIndex = worldIndex;
+  const worldNum = worldIndex + 1;
+
+  if (worldNum > data.unlocked) {
     alert("Essa fase ainda está bloqueada!");
     return;
   }
 
-  currentWorld=world;
-  currentPhase=phase;
-  roundKey=String(stageNumber(world,phase));
-  currentIndex=0;
-  score=0;
-  answered=false;
+  currentIndex = 0;
+  score = 0;
+  answered = false;
 
-  const relevant=questions.filter(q=>q.w===world-1);
-  const pool=relevant.length?relevant:questions;
+  const relevant = questions.filter(q => q.w === worldIndex);
+  const pool = relevant.length ? relevant : questions;
 
-  currentQuestions=[];
-
-  for (let i=0;i<10;i++) {
-    const index=(i*7+phase-1)%pool.length;
+  currentQuestions = [];
+  for (let i = 0; i < 10; i++) {
+    const index = (i * 7 + worldIndex) % pool.length;
     currentQuestions.push(pool[index]);
   }
+  currentQuestions.sort(() => Math.random() - 0.5);
 
-  currentQuestions.sort(()=>Math.random()-0.5);
-
-  document.getElementById("gameWorld").textContent=
-    worlds[world-1].icon+" "+worlds[world-1].name+" • Fase "+phase;
-
-  document.getElementById("gameNinja").textContent=
-    heroes.find(h=>h.id===data.hero)?.icon||"🥷";
+  document.getElementById("gameWorld").textContent = worlds[worldIndex].icon + " " + worlds[worldIndex].name;
+  document.getElementById("gameNinja").textContent = heroes.find(h => h.id === data.hero)?.icon || "🥷";
 
   showPage("game");
   renderQuestion();
 }
 
 function renderQuestion() {
-  answered=false;
+  answered = false;
+  const q = currentQuestions[currentIndex];
 
-  const q=currentQuestions[currentIndex];
+  document.getElementById("questionCount").textContent = "Pergunta " + (currentIndex + 1) + "/" + currentQuestions.length;
+  document.getElementById("questionProgress").style.width = (currentIndex / currentQuestions.length * 100) + "%";
+  document.getElementById("questionText").textContent = q.q;
+  document.getElementById("feedback").textContent = "";
+  document.getElementById("nextBtn").hidden = true;
 
-  document.getElementById("questionCount").textContent=
-    "Pergunta "+(currentIndex+1)+"/"+currentQuestions.length;
+  const container = document.getElementById("answers");
+  container.innerHTML = "";
 
-  document.getElementById("questionProgress").style.width=
-    (currentIndex/currentQuestions.length*100)+"%";
-
-  document.getElementById("questionText").textContent=q.q;
-  document.getElementById("feedback").textContent="";
-  document.getElementById("nextBtn").hidden=true;
-
-  const container=document.getElementById("answers");
-  container.innerHTML="";
-
-  q.a.forEach((answer,index)=>{
-    const btn=document.createElement("button");
-    btn.className="answer";
-    btn.textContent=String.fromCharCode(65+index)+") "+answer;
-    btn.onclick=()=>chooseAnswer(index);
+  q.a.forEach((answer, index) => {
+    const btn = document.createElement("button");
+    btn.className = "answer";
+    btn.textContent = String.fromCharCode(65 + index) + ") " + answer;
+    btn.onclick = () => chooseAnswer(index);
     container.appendChild(btn);
   });
 }
 
 function chooseAnswer(index) {
   if (answered) return;
-  answered=true;
+  answered = true;
 
-  const q=currentQuestions[currentIndex];
-  const buttons=document.querySelectorAll("#answers .answer");
-  buttons.forEach((btn,i)=>{
-    btn.disabled=true;
-    if (i===q.c) btn.classList.add("correct");
+  const q = currentQuestions[currentIndex];
+  const buttons = document.querySelectorAll("#answers .answer");
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.c) btn.classList.add("correct");
   });
 
-  const feedback=document.getElementById("feedback");
+  const feedback = document.getElementById("feedback");
 
-  if (index===q.c) {
+  if (index === q.c) {
     score++;
-    feedback.textContent="✅ Resposta correta!";
-    feedback.style.color="var(--mint)";
+    feedback.textContent = "✅ Resposta correta!";
+    feedback.style.color = "var(--mint)";
   } else {
     buttons[index].classList.add("wrong");
-    feedback.textContent="❌ Resposta incorreta. A certa era: "+q.a[q.c];
-    feedback.style.color="var(--red)";
+    feedback.textContent = "❌ Resposta incorreta. A certa era: " + q.a[q.c];
+    feedback.style.color = "var(--red)";
   }
 
-  document.getElementById("questionProgress").style.width=
-    ((currentIndex+1)/currentQuestions.length*100)+"%";
+  document.getElementById("questionProgress").style.width = ((currentIndex + 1) / currentQuestions.length * 100) + "%";
 
-  const nextBtn=document.getElementById("nextBtn");
-  nextBtn.textContent=currentIndex===currentQuestions.length-1?
-    "Ver resultado 🏆":"Próxima pergunta →";
-  nextBtn.hidden=false;
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.textContent = currentIndex === currentQuestions.length - 1 ? "Ver resultado 🏆" : "Próxima pergunta →";
+  nextBtn.hidden = false;
 }
 
 function nextQuestion() {
   if (!answered) return;
-
   currentIndex++;
-
-  if (currentIndex<currentQuestions.length) {
+  if (currentIndex < currentQuestions.length) {
     renderQuestion();
   } else {
     finishRound();
@@ -912,76 +1004,46 @@ function finishRound() {
     gainedXP = score * 10 + 50;
     data.xp += gainedXP;
 
-    const stage = stageNumber(currentWorld, currentPhase);
-
-    if (!data.completed.includes(stage)) {
-      data.completed.push(stage);
+    const worldNum = selectedWorldIndex + 1;
+    if (!data.completed.includes(worldNum)) {
+      data.completed.push(worldNum);
     }
 
-    data.unlocked = Math.max(
-      data.unlocked,
-      Math.min(stage + 1, worlds.length * 5)
-    );
+    data.unlocked = Math.max(data.unlocked, Math.min(worldNum + 1, worlds.length));
 
     if (score === 10) unlockAchievement("perfeito");
     unlockAchievement("primeira");
-
-    if (data.completed.length >= 5) {
-      unlockAchievement("cinco");
-    }
-
-    if (data.completed.length >= 10) {
-      unlockAchievement("dez");
-    }
-
+    if (data.completed.length >= 5) unlockAchievement("cinco");
+    if (data.completed.length >= 10) unlockAchievement("dez");
     if (data.xp >= 500) unlockAchievement("xp500");
   }
 
   save();
   renderAll();
 
-  document.getElementById("resultTitle").textContent =
-    won ? "FASE CONCLUÍDA!" : "TENTE NOVAMENTE";
-
-  document.getElementById("resultText").textContent =
-    won
-      ? "Você passou de fase! Continue sua aventura."
-      : "Você precisa de pelo menos 7 acertos para avançar.";
-
-  document.getElementById("resultScore").textContent =
-    score + "/10";
-
-  document.getElementById("resultXP").textContent =
-    "+" + gainedXP;
-
-  document.getElementById("resultLevel").textContent =
-    level();
+  document.getElementById("resultTitle").textContent = won ? "FASE CONCLUÍDA!" : "TENTE NOVAMENTE";
+  document.getElementById("resultText").textContent = won ? "Você passou de fase! Continue sua aventura." : "Você precisa de pelo menos 7 acertos para avançar.";
+  document.getElementById("resultScore").textContent = score + "/10";
+  document.getElementById("resultXP").textContent = "+" + gainedXP;
+  document.getElementById("resultLevel").textContent = level();
 
   const btn = document.getElementById("resultMainBtn");
-
-  btn.textContent = won
-    ? "Próxima fase →"
-    : "Tentar novamente";
-
-  btn.onclick = won
-    ? continueAfterWin
-    : retryRound;
+  btn.textContent = won ? "Próxima fase →" : "Tentar novamente";
+  btn.onclick = won ? continueAfterWin : retryRound;
 
   showPage("result");
 }
 
 function continueAfterWin() {
-  if (currentPhase < 5) {
-    startRound(currentWorld, currentPhase + 1);
-  } else if (currentWorld < worlds.length) {
-    startRound(currentWorld + 1, 1);
+  if (selectedWorldIndex < worlds.length - 1) {
+    startRound(selectedWorldIndex + 1);
   } else {
-    showPage('map');
+    showPage("map");
   }
 }
 
 function retryRound() {
-  startRound(currentWorld, currentPhase);
+  startRound(selectedWorldIndex);
 }
 
 function leaveGame() {
@@ -1005,24 +1067,22 @@ function unlockAchievement(id) {
 }
 
 function renderAchievements() {
-  const container=document.getElementById("achievementList");
+  const container = document.getElementById("achievementList");
   if (!container) return;
+  container.innerHTML = "";
 
-  container.innerHTML="";
+  achievementDefinitions.forEach(item => {
+    const unlocked = data.achievements.includes(item.id);
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.marginBottom = "10px";
+    card.style.opacity = unlocked ? "1" : ".55";
 
-  achievementDefinitions.forEach(item=>{
-    const unlocked=data.achievements.includes(item.id);
-    const card=document.createElement("div");
-    card.className="card";
-    card.style.marginBottom="10px";
-    card.style.opacity=unlocked?"1":".55";
-
-    card.innerHTML=`
-      <h3>${item.icon} ${item.name} ${unlocked?"✅":"🔒"}</h3>
+    card.innerHTML = `
+      <h3>${item.icon} ${item.name} ${unlocked ? "✅" : "🔒"}</h3>
       <p>${item.desc}</p>
-      <span class="badge">${unlocked?"Desbloqueada":"Ainda bloqueada"}</span>
+      <span class="badge">${unlocked ? "Desbloqueada" : "Ainda bloqueada"}</span>
     `;
-
     container.appendChild(card);
   });
 }
