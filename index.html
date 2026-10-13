@@ -1,388 +1,856 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#081326">
-<title>GeoMaster - Aventura Mundial</title>
+<title>GeoMaster — Aventura Mundial</title>
+
 <style>
 :root {
-  --bg:#081326; --panel:#12233d; --panel2:#1b3555;
-  --mint:#57f2c2; --gold:#ffd166; --text:#f4f7ff;
-  --muted:#a8b8d0; --red:#ff647c;
+  --bg:#081326;
+  --panel:#12233d;
+  --panel2:#192f4e;
+  --mint:#57f2c2;
+  --gold:#ffd166;
+  --text:#f4f7ff;
+  --muted:#a8b8d0;
+  --red:#ff647c;
 }
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#18385a,var(--bg) 70%);color:var(--text);font-family:Arial,sans-serif}
-header{display:flex;justify-content:space-between;align-items:center;padding:16px;position:sticky;top:0;z-index:5;background:#081326ed;border-bottom:1px solid #ffffff20}
-.logo{font-size:22px;font-weight:900}.logo span{color:var(--mint)}
-.xp-pill{padding:10px 13px;border-radius:22px;background:var(--panel2);font-weight:bold}
-main{max-width:850px;margin:auto;padding:18px}
-.card{background:var(--panel);border:1px solid #ffffff18;border-radius:18px;padding:18px;margin-bottom:16px}
-h1{font-size:30px;margin:8px 0}h2{margin:4px 0 14px}
-p{color:var(--muted);line-height:1.5}
-button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:13px 16px;font-weight:bold}
-.primary{background:var(--mint);color:#08251f}
-.secondary{background:var(--panel2);color:var(--text);border:1px solid #ffffff20}
-button:disabled{opacity:.4;cursor:not-allowed}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:16px}
-.stat{background:#ffffff08;border-radius:12px;padding:12px;text-align:center}
-.stat strong{display:block;color:var(--gold);font-size:22px;margin-bottom:5px}
-.progress{height:9px;background:#ffffff18;border-radius:20px;overflow:hidden;margin:12px 0}
-.progress div{height:100%;width:0;background:var(--mint);transition:width .2s}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.world{background:var(--panel);border:1px solid #ffffff20;border-radius:16px;padding:15px;text-align:left;color:var(--text);min-height:130px}
-.world .emoji{font-size:29px;display:block;margin-bottom:9px}
-.world small{display:block;color:var(--muted);margin-top:7px;line-height:1.4}
-.world.locked{opacity:.45}
-.world b{display:block}
-.tag{display:inline-block;border-radius:20px;background:#ffffff12;padding:6px 9px;font-size:12px;color:var(--mint)}
-.answers{display:grid;gap:10px;margin:20px 0}
-.answer{width:100%;text-align:left;background:var(--panel2);color:var(--text);border:1px solid #ffffff20}
-.answer.correct{background:#164e42;border-color:var(--mint)}
-.answer.wrong{background:#54283a;border-color:var(--red)}
-.topline{display:flex;align-items:center;justify-content:space-between;gap:12px}
-#feedback{min-height:26px;font-weight:bold}
-.hidden{display:none!important}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
-@media(max-width:480px){main{padding:12px}.grid{gap:9px}.world{padding:12px;min-height:125px}.stats .stat{padding:9px}.logo{font-size:19px}}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  min-height:100vh;
+  background:radial-gradient(ellipse at top,#18385a,var(--bg) 70%);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+button { font:inherit; cursor:pointer; }
+header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:16px;
+  border-bottom:1px solid #ffffff18;
+  position:sticky;
+  top:0;
+  background:#081326ed;
+  z-index:5;
+}
+.logo { font-size:22px; font-weight:900; }
+.logo span { color:var(--mint); }
+.xp-pill {
+  background:var(--panel);
+  color:var(--gold);
+  padding:10px 13px;
+  border-radius:20px;
+  font-weight:bold;
+}
+main {
+  width:min(850px,100%);
+  padding:18px;
+  margin:auto;
+}
+.page { display:none; }
+.page.active { display:block; }
+.hero-banner {
+  text-align:center;
+  padding:28px 12px;
+  background:linear-gradient(145deg,#183957,#12233d);
+  border:1px solid #ffffff17;
+  border-radius:22px;
+  margin:8px 0 20px;
+}
+.ninja { font-size:68px; }
+h1 { font-size:30px; margin:10px 0; }
+h2 { font-size:23px; }
+p { color:var(--muted); line-height:1.55; }
+.mint { color:var(--mint); }
+.gold { color:var(--gold); }
+.btn {
+  display:block;
+  width:100%;
+  border:0;
+  border-radius:13px;
+  padding:14px;
+  margin:10px 0;
+  font-weight:bold;
+  background:var(--mint);
+  color:#071629;
+}
+.btn.secondary {
+  background:var(--panel2);
+  color:var(--text);
+  border:1px solid #ffffff1b;
+}
+.btn.gold-btn { background:var(--gold); }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.card {
+  background:var(--panel);
+  border:1px solid #ffffff17;
+  padding:16px;
+  border-radius:17px;
+  min-width:0;
+}
+.card h3 { margin:8px 0; }
+.card p { font-size:14px; }
+.world-icon { font-size:35px; }
+.locked { opacity:.5; }
+.progress {
+  height:9px;
+  background:#ffffff17;
+  border-radius:10px;
+  overflow:hidden;
+  margin:12px 0;
+}
+.progress div {
+  height:100%;
+  width:0;
+  background:var(--mint);
+  transition:width .25s;
+}
+.stat-row {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin:14px 0;
+}
+.stat {
+  text-align:center;
+  background:var(--panel);
+  padding:13px 5px;
+  border-radius:14px;
+}
+.stat strong { display:block; font-size:21px; color:var(--mint); }
+.stat small { color:var(--muted); }
+.question-card {
+  background:var(--panel);
+  border-radius:20px;
+  padding:18px;
+  margin-top:18px;
+}
+.question-meta {
+  display:flex;
+  justify-content:space-between;
+  color:var(--muted);
+  font-size:14px;
+}
+#questionText { font-size:21px; line-height:1.4; }
+.answer {
+  width:100%;
+  text-align:left;
+  padding:14px;
+  margin:7px 0;
+  background:var(--panel2);
+  color:var(--text);
+  border:1px solid #ffffff20;
+  border-radius:12px;
+}
+.answer.correct {
+  background:#15533f;
+  border-color:var(--mint);
+}
+.answer.wrong {
+  background:#642b3b;
+  border-color:var(--red);
+}
+.answer:disabled { cursor:default; }
+.feedback { min-height:25px; font-weight:bold; }
+.small { font-size:13px; color:var(--muted); }
+.badge {
+  display:inline-block;
+  padding:7px 10px;
+  border-radius:20px;
+  background:#ffffff12;
+  margin:3px;
+}
+footer {
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  padding:25px;
+}
+@media(max-width:420px) {
+  main { padding:13px; }
+  .grid { gap:9px; }
+  .card { padding:12px; }
+  h1 { font-size:26px; }
+  #questionText { font-size:19px; }
+}
 </style>
 </head>
+
 <body>
 <header>
-  <div class="logo">🌍 Geo<span>Master</span></div>
-  <div class="xp-pill">⭐ <span id="headerXP">0</span> XP</div>
+  <div class="logo">🌎 Geo<span>Master</span></div>
+  <div class="xp-pill">⚡ <span id="xpDisplay">0</span> XP</div>
 </header>
+
 <main>
-<section id="home">
-  <div class="card">
-    <span class="tag">AVENTURA MUNDIAL</span>
-    <h1>Explore o planeta!</h1>
-    <p>Responda às perguntas, ganhe XP, desbloqueie ninjas e conquiste os mundos da geografia.</p>
-    <div class="stats">
-      <div class="stat"><strong id="homeLevel">1</strong>Nível</div>
-      <div class="stat"><strong id="homeWins">0</strong>Fases concluídas</div>
-      <div class="stat"><strong id="homeBadges">0</strong>Conquistas</div>
+  <section id="home" class="page active">
+    <div class="hero-banner">
+      <div class="ninja">🥷</div>
+      <h1>AVENTURA <span class="mint">MUNDIAL</span></h1>
+      <p>Explore o planeta, responda perguntas e torne-se um mestre da geografia!</p>
+      <div class="stat-row">
+        <div class="stat"><strong id="homeLevel">1</strong><small>Nível</small></div>
+        <div class="stat"><strong id="homeWorlds">1</strong><small>Mundos</small></div>
+        <div class="stat"><strong id="homeWins">0</strong><small>Fases vencidas</small></div>
+      </div>
+      <button class="btn" onclick="showPage('map')">🗺️ Explorar mundos</button>
+      <button class="btn secondary" onclick="continueGame()">▶ Continuar aventura</button>
+      <button class="btn secondary" onclick="showPage('heroes')">🥷 Escolher ninja</button>
+      <button class="btn secondary" onclick="showPage('achievements')">🏆 Minhas conquistas</button>
     </div>
-    <div class="progress"><div id="homeProgress"></div></div>
-    <p id="homeMessage">Sua aventura começa agora!</p>
-    <button class="primary" onclick="showWorlds()">🗺️ Escolher mundo</button>
-  </div>
-  <div class="card">
-    <h2>🥷 Seus ninjas</h2>
-    <p id="ninjaList">🥷 Ninja Explorador — disponível desde o início.</p>
-  </div>
-  <div class="card">
-    <h2>🏆 Conquistas</h2>
-    <div id="badgeList">🔒 Complete fases para conquistar medalhas.</div>
-    <p><button class="secondary" onclick="resetGame()">Reiniciar progresso</button></p>
-  </div>
-</section>
-
-<section id="worldScreen" class="hidden">
-  <div class="topline"><h2>🗺️ Mundos</h2><button class="secondary" onclick="showHome()">Início</button></div>
-  <p>Escolha um mundo e avance por suas cinco fases.</p>
-  <div class="grid" id="worldGrid"></div>
-</section>
-
-<section id="stageScreen" class="hidden">
-  <div class="topline"><h2 id="stageTitle">Fases</h2><button class="secondary" onclick="showWorlds()">Voltar</button></div>
-  <p id="stageDescription"></p>
-  <div class="grid" id="stageGrid"></div>
-</section>
-
-<section id="quizScreen" class="hidden">
-  <div class="topline">
-    <span class="tag" id="quizTag">FASE 1</span>
-    <button class="secondary" onclick="showStages(currentWorld)">Sair</button>
-  </div>
-  <h2 id="questionTitle">Pergunta 1 de 10</h2>
-  <div class="progress"><div id="quizProgress"></div></div>
-  <div class="card">
-    <p id="questionCategory"></p>
-    <h2 id="questionText"></h2>
-    <div class="answers" id="answerList"></div>
-    <p id="feedback"></p>
-    <button class="primary hidden" id="nextButton" onclick="nextQuestion()">Próxima pergunta →</button>
-  </div>
-</section>
-
-<section id="resultScreen" class="hidden">
-  <div class="card">
-    <h1 id="resultTitle">Fase concluída!</h1>
-    <p id="resultMessage"></p>
-    <div class="stats">
-      <div class="stat"><strong id="resultCorrect">0/10</strong>Acertos</div>
-      <div class="stat"><strong id="resultEarned">0</strong>XP ganho</div>
-      <div class="stat"><strong id="resultLevel">1</strong>Nível atual</div>
+    <h2>📜 Sua missão</h2>
+    <div class="card">
+      <p>Responda a 10 perguntas em cada fase. Acerte pelo menos 7 para vencer, ganhar XP e desbloquear novas etapas.</p>
     </div>
-    <p id="resultUnlocks"></p>
-    <p><button class="primary" onclick="showStages(currentWorld)">Continuar fases</button></p>
-    <p><button class="secondary" onclick="showWorlds()">Escolher mundo</button></p>
-    <button class="secondary" onclick="showHome()">Início</button>
-  </div>
-</section>
+  </section>
+
+  <section id="map" class="page">
+    <h1>🗺️ Mundos</h1>
+    <p>Escolha um mundo e avance pelas fases.</p>
+    <div id="worldList" class="grid"></div>
+    <button class="btn secondary" onclick="showPage('home')">← Voltar ao início</button>
+  </section>
+
+  <section id="heroes" class="page">
+    <h1>🥷 Escolha seu ninja</h1>
+    <p>Desbloqueie personagens usando XP.</p>
+    <div id="heroList" class="grid"></div>
+    <button class="btn secondary" onclick="showPage('home')">← Voltar</button>
+  </section>
+
+  <section id="game" class="page">
+    <button class="btn secondary" onclick="leaveGame()">✕ Sair da fase</button>
+    <div class="question-card">
+      <div class="question-meta">
+        <span id="gameWorld">Mundo 1</span>
+        <span id="questionCount">Pergunta 1/10</span>
+      </div>
+      <div class="progress"><div id="questionProgress"></div></div>
+      <div id="gameNinja" class="ninja" style="font-size:48px;text-align:center">🥷</div>
+      <h2 id="questionText">Preparando pergunta...</h2>
+      <div id="answers"></div>
+      <p id="feedback" class="feedback" aria-live="polite"></p>
+      <button id="nextBtn" class="btn" onclick="nextQuestion()" hidden>Próxima pergunta →</button>
+    </div>
+  </section>
+
+  <section id="result" class="page">
+    <div class="hero-banner">
+      <div id="resultIcon" class="ninja">🏆</div>
+      <h1 id="resultTitle">Fase concluída!</h1>
+      <p id="resultText"></p>
+      <div class="stat-row">
+        <div class="stat"><strong id="resultScore">0/10</strong><small>Acertos</small></div>
+        <div class="stat"><strong id="resultXP">0</strong><small>XP ganhos</small></div>
+        <div class="stat"><strong id="resultLevel">1</strong><small>Nível</small></div>
+      </div>
+      <button class="btn" id="resultMainBtn" onclick="showPage('map')">Voltar aos mundos</button>
+      <button class="btn secondary" onclick="showPage('home')">Início</button>
+    </div>
+  </section>
+
+  <section id="achievements" class="page">
+    <h1>🏆 Conquistas</h1>
+    <p>Complete desafios durante sua aventura.</p>
+    <div id="achievementList"></div>
+    <button class="btn secondary" onclick="showPage('home')">← Voltar</button>
+  </section>
 </main>
-<footer>GeoMaster • Aprenda geografia jogando 🌎</footer>
+
+<footer>GeoMaster • Aprenda explorando o mundo 🌎</footer>
 
 <script>
+"use strict";
+
 const worlds = [
-{name:"Brasil",emoji:"🇧🇷",desc:"Estados, capitais e regiões",q:[
-["Qual é a capital do Brasil?","Brasília",["Rio de Janeiro","São Paulo","Brasília","Salvador"]],
-["Qual é o maior estado brasileiro em área?","Amazonas",["Pará","Amazonas","Minas Gerais","Bahia"]],
-["Qual é a capital de Santa Catarina?","Florianópolis",["Joinville","Blumenau","Florianópolis","Chapecó"]],
-["Em qual região fica o Paraná?","Sul",["Norte","Nordeste","Sul","Centro-Oeste"]],
-["Qual é o maior bioma brasileiro?","Amazônia",["Cerrado","Caatinga","Pantanal","Amazônia"]],
-["Qual é a capital da Bahia?","Salvador",["Recife","Salvador","Fortaleza","Natal"]],
-["Qual oceano banha o Brasil?","Atlântico",["Pacífico","Índico","Atlântico","Ártico"]],
-["Qual é a capital de Minas Gerais?","Belo Horizonte",["Goiânia","Vitória","Belo Horizonte","Campo Grande"]],
-["Qual é o idioma oficial do Brasil?","Português",["Espanhol","Português","Inglês","Francês"]],
-["Em qual região fica o Amazonas?","Norte",["Sul","Sudeste","Norte","Nordeste"]]
-]},
-{name:"América",emoji:"🌎",desc:"Países e capitais americanas",q:[
-["Qual é a capital da Argentina?","Buenos Aires",["Lima","Buenos Aires","Santiago","Quito"]],
-["Qual é a capital do Chile?","Santiago",["Bogotá","Caracas","Santiago","La Paz"]],
-["Qual é a capital do Peru?","Lima",["Lima","Cusco","Quito","Assunção"]],
-["Qual país tem Ottawa como capital?","Canadá",["Estados Unidos","Canadá","México","Cuba"]],
-["Qual é a capital do México?","Cidade do México",["Monterrey","Guadalajara","Cidade do México","Cancún"]],
-["Qual país tem Bogotá como capital?","Colômbia",["Colômbia","Uruguai","Equador","Venezuela"]],
-["Qual é a capital dos Estados Unidos?","Washington, D.C.",["Nova York","Los Angeles","Washington, D.C.","Chicago"]],
-["Qual é a capital do Uruguai?","Montevidéu",["Montevidéu","Rosário","Córdoba","Assunção"]],
-["Em qual continente fica o Canadá?","América do Norte",["América do Sul","Europa","América do Norte","Ásia"]],
-["Qual é a capital do Equador?","Quito",["Quito","Lima","La Paz","Caracas"]]
-]},
-{name:"Europa",emoji:"🏰",desc:"Países, cidades e cultura",q:[
-["Qual é a capital da França?","Paris",["Roma","Paris","Madri","Lisboa"]],
-["Qual é a capital da Itália?","Roma",["Atenas","Berlim","Roma","Viena"]],
-["Qual é a capital da Espanha?","Madri",["Barcelona","Lisboa","Madri","Sevilha"]],
-["Qual país tem Lisboa como capital?","Portugal",["Portugal","Grécia","Irlanda","Bélgica"]],
-["Qual é a capital da Alemanha?","Berlim",["Hamburgo","Berlim","Munique","Frankfurt"]],
-["Qual é a capital da Grécia?","Atenas",["Atenas","Sofia","Zagreb","Praga"]],
-["Qual é a capital do Reino Unido?","Londres",["Dublin","Londres","Cardiff","Edimburgo"]],
-["Qual é a capital da Noruega?","Oslo",["Estocolmo","Oslo","Helsinque","Copenhague"]],
-["Qual é a capital da Irlanda?","Dublin",["Dublin","Belfast","Londres","Paris"]],
-["Qual é a capital da Áustria?","Viena",["Zurique","Viena","Praga","Budapeste"]]
-]},
-{name:"Ásia",emoji:"🏯",desc:"Grandes países e capitais",q:[
-["Qual é a capital do Japão?","Tóquio",["Kyoto","Osaka","Tóquio","Seul"]],
-["Qual é a capital da China?","Pequim",["Xangai","Pequim","Hong Kong","Wuhan"]],
-["Qual é a capital da Coreia do Sul?","Seul",["Seul","Busan","Tóquio","Taipé"]],
-["Qual é a capital da Índia?","Nova Délhi",["Mumbai","Jaipur","Nova Délhi","Chennai"]],
-["Qual é a capital da Tailândia?","Bangkok",["Hanói","Bangkok","Manila","Jacarta"]],
-["Qual é a capital da Indonésia?","Jacarta",["Jacarta","Bali","Kuala Lumpur","Bangkok"]],
-["Qual é a capital do Nepal?","Catmandu",["Daca","Catmandu","Islamabad","Teerã"]],
-["Qual é a capital da Turquia?","Ancara",["Istambul","Ancara","Esmirna","Bursa"]],
-["Qual é a capital do Vietnã?","Hanói",["Hanói","Ho Chi Minh","Phnom Penh","Vientiane"]],
-["Qual é a capital das Filipinas?","Manila",["Cebu","Manila","Bangkok","Seul"]]
-]},
-{name:"África",emoji:"🦁",desc:"Países e geografia africana",q:[
-["Qual é a capital do Egito?","Cairo",["Alexandria","Cairo","Trípoli","Túnis"]],
-["Qual é a capital do Quênia?","Nairóbi",["Nairóbi","Lagos","Acra","Dacar"]],
-["Qual é a capital do Senegal?","Dacar",["Bamako","Dacar","Nairóbi","Cairo"]],
-["Qual é a capital de Gana?","Acra",["Acra","Lomé","Abuja","Luanda"]],
-["Qual é a capital da Etiópia?","Adis Abeba",["Cartum","Adis Abeba","Mogadíscio","Kigali"]],
-["Qual é a capital de Marrocos?","Rabat",["Casablanca","Marrakech","Rabat","Tânger"]],
-["Qual é a capital da Nigéria?","Abuja",["Lagos","Abuja","Cotonou","Acra"]],
-["Qual é a capital de Angola?","Luanda",["Maputo","Luanda","Lusaca","Harare"]],
-["Qual é a capital de Moçambique?","Maputo",["Maputo","Luanda","Dacar","Cairo"]],
-["Qual é o maior deserto quente da África?","Saara",["Kalahari","Saara","Namibe","Gobi"]]
-]},
-{name:"Oceania",emoji:"🦘",desc:"Austrália, ilhas e oceanos",q:[
-["Qual é a capital da Austrália?","Camberra",["Sydney","Melbourne","Camberra","Perth"]],
-["Qual é a capital da Nova Zelândia?","Wellington",["Auckland","Wellington","Christchurch","Hamilton"]],
-["Em qual continente fica Fiji?","Oceania",["Ásia","África","Oceania","Europa"]],
-["Qual é a maior ilha da Oceania?","Nova Guiné",["Tasmânia","Nova Guiné","Fiji","Ilha Norte"]],
-["Qual cidade australiana é famosa pela Opera House?","Sydney",["Perth","Adelaide","Sydney","Darwin"]],
-["Qual é a capital de Samoa?","Apia",["Apia","Suva","Nuku'alofa","Port Vila"]],
-["Qual é a capital de Fiji?","Suva",["Suva","Apia","Honiara","Camberra"]],
-["Qual oceano banha grande parte da Oceania?","Pacífico",["Atlântico","Pacífico","Ártico","Antártico"]],
-["Qual é a capital de Tonga?","Nuku'alofa",["Apia","Nuku'alofa","Suva","Port Moresby"]],
-["A Austrália é também um...?","País e continente",["Somente uma ilha","País e continente","Oceano","Arquipélago europeu"]]
-]},
-{name:"Oceanos",emoji:"🌊",desc:"Mares, oceanos e águas",q:[
-["Qual é o maior oceano do planeta?","Pacífico",["Atlântico","Índico","Pacífico","Ártico"]],
-["Qual oceano fica entre África e Austrália?","Índico",["Índico","Pacífico","Atlântico","Ártico"]],
-["Qual oceano banha a costa leste do Brasil?","Atlântico",["Pacífico","Atlântico","Índico","Antártico"]],
-["Qual oceano fica ao redor do Polo Norte?","Ártico",["Índico","Atlântico","Ártico","Pacífico"]],
-["Qual é o oceano mais ao sul do planeta?","Oceano Antártico",["Oceano Índico","Oceano Antártico","Oceano Ártico","Oceano Atlântico"]],
-["A água do mar é geralmente...?","Salgada",["Doce","Salgada","Gasosa","Sem minerais"]],
-["Qual instrumento ajuda a orientar navegadores?","Bússola",["Termômetro","Bússola","Barômetro","Microscópio"]],
-["O que é um arquipélago?","Conjunto de ilhas",["Uma montanha","Um rio","Conjunto de ilhas","Um deserto"]],
-["O que causa principalmente as marés?","A atração gravitacional da Lua e do Sol",["Vulcões","Ventos somente","A gravidade da Lua e do Sol","Chuvas"]],
-["Como se chama a água do mar em movimento periódico vertical?","Maré",["Maré","Geleira","Nascente","Cachoeira"]]
-]},
-{name:"Montanhas",emoji:"⛰️",desc:"Cordilheiras e grandes altitudes",q:[
-["Qual é a montanha mais alta do mundo acima do nível do mar?","Everest",["K2","Everest","Aconcágua","Kilimanjaro"]],
-["Em qual cordilheira fica o Everest?","Himalaia",["Andes","Alpes","Himalaia","Montanhas Rochosas"]],
-["Qual é a grande cordilheira da América do Sul?","Andes",["Andes","Alpes","Himalaia","Atlas"]],
-["Em qual continente ficam os Alpes?","Europa",["África","Europa","Ásia","Oceania"]],
-["Qual é a montanha mais alta da África?","Kilimanjaro",["Atlas","Kilimanjaro","Monte Quênia","Everest"]],
-["Qual é a montanha mais alta da América do Sul?","Aconcágua",["Aconcágua","Everest","Denali","Elbrus"]],
-["O que é um vulcão?","Abertura por onde podem sair magma e gases",["Um tipo de rio","Abertura por onde podem sair magma e gases","Um oceano","Uma geleira"]],
-["Como se chama a rocha derretida abaixo da superfície?","Magma",["Lava","Magma","Granito","Areia"]],
-["O que é uma cordilheira?","Conjunto extenso de montanhas",["Uma planície","Conjunto extenso de montanhas","Um lago","Uma ilha"]],
-["Qual é a montanha mais alta da América do Norte?","Denali",["Denali","Aconcágua","Kilimanjaro","Mont Blanc"]]
-]},
-{name:"Clima e natureza",emoji:"🌳",desc:"Biomas, tempo e ambiente",q:[
-["Qual gás as plantas absorvem na fotossíntese?","Dióxido de carbono",["Oxigênio","Hélio","Dióxido de carbono","Hidrogênio"]],
-["Qual bioma brasileiro tem vegetação adaptada à seca?","Caatinga",["Caatinga","Pampa","Mata de Araucárias","Pantanal"]],
-["O que mede um termômetro?","Temperatura",["Pressão","Temperatura","Velocidade do vento","Umidade"]],
-["Qual é a principal fonte natural de energia da Terra?","Sol",["Lua","Sol","Vulcões","Oceanos"]],
-["Como se chama a transformação da água líquida em vapor?","Evaporação",["Condensação","Congelamento","Evaporação","Precipitação"]],
-["Qual bioma tem árvores adaptadas ao frio no sul do Brasil?","Mata de Araucárias",["Caatinga","Mata de Araucárias","Cerrado","Manguezal"]],
-["O que é biodiversidade?","Variedade de seres vivos",["Poluição da água","Variedade de seres vivos","Mudança das estações","Apenas árvores"]],
-["Qual é uma fonte de energia renovável?","Energia solar",["Carvão mineral","Petróleo","Energia solar","Gasolina"]],
-["O que são áreas de preservação ambiental?","Áreas protegidas para conservar a natureza",["Estacionamentos","Áreas protegidas para conservar a natureza","Zonas industriais","Áreas sem vegetação"]],
-["Qual fenômeno envolve o aquecimento médio do planeta?","Aquecimento global",["Eclipse","Aquecimento global","Maré baixa","Terremoto"]]
-]},
-{name:"Desafio mundial",emoji:"🏆",desc:"Conhecimentos gerais do planeta",q:[
-["Qual é o maior país do mundo em área?","Rússia",["Canadá","China","Rússia","Brasil"]],
-["Qual é o menor país do mundo em área?","Vaticano",["Mônaco","Vaticano","Malta","Andorra"]],
-["Qual rio é tradicionalmente considerado um dos mais longos do mundo?","Nilo",["Nilo","Tâmisa","Sena","Reno"]],
-["Em qual país ficam as pirâmides de Gizé?","Egito",["México","Egito","Índia","Grécia"]],
-["Qual linha imaginária divide a Terra em hemisférios Norte e Sul?","Equador",["Trópico de Câncer","Meridiano de Greenwich","Equador","Trópico de Capricórnio"]],
-["Qual é a capital de Portugal?","Lisboa",["Porto","Lisboa","Coimbra","Faro"]],
-["Qual é a capital da Suíça?","Berna",["Genebra","Zurique","Berna","Basileia"]],
-["Qual é o continente mais frio?","Antártida",["Europa","Ásia","Antártida","América do Sul"]],
-["Qual linha imaginária passa por Greenwich?","Meridiano principal",["Equador","Meridiano principal","Trópico de Capricórnio","Círculo Polar Ártico"]],
-["Qual é o maior continente em área?","Ásia",["África","Europa","Ásia","Oceania"]]
-]}
+  {name:"Brasil",icon:"🇧🇷",desc:"Estados, cidades e geografia brasileira."},
+  {name:"América",icon:"🌎",desc:"Países e paisagens das Américas."},
+  {name:"Europa",icon:"🏰",desc:"Países, capitais e cultura europeia."},
+  {name:"Ásia",icon:"⛩️",desc:"Explore o maior continente."},
+  {name:"África",icon:"🦁",desc:"Desertos, rios e países africanos."},
+  {name:"Oceania",icon:"🦘",desc:"Austrália, ilhas e oceanos."},
+  {name:"Oceanos",icon:"🌊",desc:"Mares e oceanos do planeta."},
+  {name:"Montanhas",icon:"🏔️",desc:"Grandes montanhas e cordilheiras."},
+  {name:"Clima e natureza",icon:"🌦️",desc:"Biomas, clima e natureza."},
+  {name:"Desafio mundial",icon:"🌍",desc:"Teste seus conhecimentos gerais."}
 ];
 
-const STORAGE="geoDadosNovo";
-let data;
-try{data=JSON.parse(localStorage.getItem(STORAGE))||{};}catch(e){data={};}
-data.xp=Number(data.xp)||0;
-data.done=data.done||{};
-data.badges=data.badges||[];
-data.ninjas=data.ninjas||["🥷 Ninja Explorador"];
-let currentWorld=0,currentStage=1,questions=[],questionIndex=0,correctCount=0,answered=false,earned=0;
+const heroes = [
+  {id:"akira",name:"Akira",icon:"🥷",cost:0,desc:"O ninja iniciante."},
+  {id:"kenzo",name:"Kenzo",icon:"🥷🏻",cost:150,desc:"Especialista em exploração."},
+  {id:"hiro",name:"Hiro",icon:"🥷🏼",cost:400,desc:"Mestre dos continentes."},
+  {id:"daichi",name:"Daichi",icon:"🥷🏽",cost:700,desc:"Guardião dos oceanos."},
+  {id:"ryu",name:"Ryu Lendário",icon:"🥷🏿",cost:2000,desc:"O lendário mestre mundial."}
+];
 
-function save(){localStorage.setItem(STORAGE,JSON.stringify(data));}
-function level(){return Math.floor(data.xp/100)+1;}
-function completedCount(){return Object.keys(data.done).filter(k=>data.done[k]).length;}
-function stageKey(w,s){return w+"-"+s;}
-function isDone(w,s){return !!data.done[stageKey(w,s)];}
-function isUnlocked(w,s){
- if(w===0&&s===1)return true;
- if(s>1)return isDone(w,s-1);
- return w>0&&isDone(w-1,5);
+const questions = [
+  {w:0,q:"Qual é a capital do Brasil?",a:["São Paulo","Brasília","Rio de Janeiro","Salvador"],c:1},
+  {w:0,q:"Qual é o maior estado brasileiro em área?",a:["Bahia","Minas Gerais","Amazonas","Paraná"],c:2},
+  {w:0,q:"Qual oceano banha o litoral brasileiro?",a:["Pacífico","Índico","Atlântico","Ártico"],c:2},
+  {w:0,q:"Em qual região fica o estado do Paraná?",a:["Sul","Norte","Nordeste","Centro-Oeste"],c:0},
+  {w:0,q:"Qual é a capital de Santa Catarina?",a:["Blumenau","Joinville","Florianópolis","Chapecó"],c:2},
+  {w:0,q:"Qual é o idioma oficial do Brasil?",a:["Espanhol","Português","Inglês","Francês"],c:1},
+  {w:0,q:"Qual floresta ocupa grande parte do Norte do Brasil?",a:["Amazônia","Taiga","Savana africana","Floresta boreal"],c:0},
+  {w:0,q:"Qual é a capital de Minas Gerais?",a:["Goiânia","Belo Horizonte","Vitória","Curitiba"],c:1},
+  {w:0,q:"Em qual região fica o estado da Bahia?",a:["Sul","Norte","Nordeste","Sudeste"],c:2},
+  {w:0,q:"Qual é a moeda oficial do Brasil?",a:["Peso","Euro","Real","Dólar"],c:2},
+
+  {w:1,q:"Qual é a capital dos Estados Unidos?",a:["Nova York","Washington, D.C.","Los Angeles","Chicago"],c:1},
+  {w:1,q:"Qual é o maior país da América do Sul em área?",a:["Argentina","Peru","Brasil","Chile"],c:2},
+  {w:1,q:"Qual é a capital da Argentina?",a:["Lima","Buenos Aires","Santiago","Montevidéu"],c:1},
+  {w:1,q:"Qual país tem a cidade de Toronto?",a:["Canadá","México","Cuba","Brasil"],c:0},
+  {w:1,q:"Qual é a capital do Chile?",a:["Santiago","Bogotá","Quito","Caracas"],c:0},
+  {w:1,q:"Qual é a capital do Peru?",a:["La Paz","Lima","Assunção","Caracas"],c:1},
+  {w:1,q:"Qual país é conhecido pelo Canal do Panamá?",a:["Colômbia","Panamá","Equador","Uruguai"],c:1},
+  {w:1,q:"Qual é a capital do México?",a:["Cancún","Guadalajara","Cidade do México","Monterrey"],c:2},
+  {w:1,q:"Qual é a capital do Uruguai?",a:["Montevidéu","Assunção","Lima","Quito"],c:0},
+  {w:1,q:"Qual é a capital da Colômbia?",a:["Bogotá","Caracas","Lima","Santiago"],c:0},
+
+  {w:2,q:"Qual é a capital da França?",a:["Roma","Paris","Madri","Berlim"],c:1},
+  {w:2,q:"Qual é a capital da Itália?",a:["Atenas","Lisboa","Roma","Viena"],c:2},
+  {w:2,q:"Em qual país fica a cidade de Barcelona?",a:["Portugal","Espanha","Grécia","França"],c:1},
+  {w:2,q:"Qual é a capital de Portugal?",a:["Porto","Lisboa","Coimbra","Braga"],c:1},
+  {w:2,q:"Qual é a capital da Alemanha?",a:["Berlim","Munique","Hamburgo","Frankfurt"],c:0},
+  {w:2,q:"Qual é a capital da Grécia?",a:["Atenas","Istambul","Sófia","Belgrado"],c:0},
+  {w:2,q:"Qual é a moeda utilizada em muitos países da União Europeia?",a:["Real","Euro","Peso","Iene"],c:1},
+  {w:2,q:"Em qual país fica a cidade de Amsterdã?",a:["Bélgica","Países Baixos","Suíça","Áustria"],c:1},
+  {w:2,q:"Qual é a capital do Reino Unido?",a:["Dublin","Londres","Edimburgo","Cardiff"],c:1},
+  {w:2,q:"Qual é a capital da Noruega?",a:["Oslo","Estocolmo","Helsinque","Copenhague"],c:0},
+
+  {w:3,q:"Qual é o maior continente do planeta?",a:["Europa","África","Ásia","Oceania"],c:2},
+  {w:3,q:"Qual é a capital do Japão?",a:["Kyoto","Tóquio","Osaka","Hiroshima"],c:1},
+  {w:3,q:"Qual é a capital da China?",a:["Xangai","Pequim","Hong Kong","Wuhan"],c:1},
+  {w:3,q:"Em qual país fica o Taj Mahal?",a:["Índia","Nepal","Japão","Tailândia"],c:0},
+  {w:3,q:"Qual é a capital da Coreia do Sul?",a:["Seul","Busan","Tóquio","Pyongyang"],c:0},
+  {w:3,q:"Qual é a capital da Tailândia?",a:["Hanói","Bangkok","Manila","Jacarta"],c:1},
+  {w:3,q:"Qual é a capital da Arábia Saudita?",a:["Riad","Doha","Dubai","Mascate"],c:0},
+  {w:3,q:"Qual é o idioma predominante no Japão?",a:["Chinês","Japonês","Coreano","Tailandês"],c:1},
+  {w:3,q:"Qual país tem a cidade de Katmandu?",a:["Índia","Nepal","Butão","Laos"],c:1},
+  {w:3,q:"Qual é a capital das Filipinas?",a:["Manila","Jacarta","Daca","Hanói"],c:0},
+
+  {w:4,q:"Qual é o maior deserto quente do mundo?",a:["Saara","Gobi","Kalahari","Atacama"],c:0},
+  {w:4,q:"Qual é a capital do Egito?",a:["Cairo","Nairóbi","Túnis","Argel"],c:0},
+  {w:4,q:"Em qual continente fica o Quênia?",a:["Ásia","África","Europa","Oceania"],c:1},
+  {w:4,q:"Qual grande rio atravessa o Egito?",a:["Amazonas","Nilo","Danúbio","Mississippi"],c:1},
+  {w:4,q:"Qual é a capital da África do Sul?",a:["Pretória","Cairo","Lagos","Dacar"],c:0},
+  {w:4,q:"Qual é a capital de Marrocos?",a:["Rabat","Casablanca","Trípoli","Cartum"],c:0},
+  {w:4,q:"Qual ilha é um país africano próximo à costa sudeste da África?",a:["Madagascar","Islândia","Cuba","Taiwan"],c:0},
+  {w:4,q:"Qual é a capital da Nigéria?",a:["Abuja","Lagos","Acra","Dacar"],c:0},
+  {w:4,q:"O Saara está localizado principalmente em qual região da África?",a:["Norte","Sul","Sudeste","Centro-sul"],c:0},
+  {w:4,q:"Qual é a capital do Senegal?",a:["Dacar","Bamaco","Lomé","Abuja"],c:0},
+
+  {w:5,q:"Qual é a capital da Austrália?",a:["Sydney","Melbourne","Canberra","Perth"],c:2},
+  {w:5,q:"Qual animal é um símbolo conhecido da Austrália?",a:["Canguru","Panda","Tigre","Lêmure"],c:0},
+  {w:5,q:"Qual é a capital da Nova Zelândia?",a:["Auckland","Wellington","Christchurch","Hamilton"],c:1},
+  {w:5,q:"A Oceania inclui principalmente qual tipo de território?",a:["Ilhas e Austrália","Somente desertos","Somente geleiras","Grandes planícies europeias"],c:0},
+  {w:5,q:"Qual oceano banha grande parte da Oceania?",a:["Pacífico","Ártico","Atlântico Norte","Oceano Antártico apenas"],c:0},
+  {w:5,q:"Qual é a capital de Fiji?",a:["Suva","Apia","Nuku'alofa","Port Vila"],c:0},
+  {w:5,q:"Qual é a capital de Papua-Nova Guiné?",a:["Port Moresby","Suva","Canberra","Honiara"],c:0},
+  {w:5,q:"Qual é a capital de Samoa?",a:["Apia","Suva","Wellington","Suva"],c:0},
+  {w:5,q:"Qual é o maior país da Oceania em área?",a:["Fiji","Austrália","Samoa","Vanuatu"],c:1},
+  {w:5,q:"Em qual país fica a Grande Barreira de Corais?",a:["Austrália","Japão","Índia","México"],c:0},
+
+  {w:6,q:"Qual é o maior oceano da Terra?",a:["Atlântico","Índico","Pacífico","Ártico"],c:2},
+  {w:6,q:"Qual oceano fica entre a África e a Austrália?",a:["Índico","Pacífico","Ártico","Atlântico"],c:0},
+  {w:6,q:"Qual oceano banha a costa leste do Brasil?",a:["Pacífico","Atlântico","Índico","Ártico"],c:1},
+  {w:6,q:"Qual é o menor oceano do planeta?",a:["Pacífico","Atlântico","Ártico","Índico"],c:2},
+  {w:6,q:"A Fossa das Marianas fica em qual oceano?",a:["Pacífico","Atlântico","Índico","Ártico"],c:0},
+  {w:6,q:"Qual é a principal fonte de água dos oceanos?",a:["Chuva apenas","Água salgada","Água doce dos rios","Gelo derretido apenas"],c:1},
+  {w:6,q:"Qual oceano fica entre as Américas e a Europa?",a:["Atlântico","Índico","Pacífico","Ártico"],c:0},
+  {w:6,q:"Qual fenômeno pode causar ondas gigantes no oceano após terremotos submarinos?",a:["Tsunami","Monção","Brisa","Geada"],c:0},
+  {w:6,q:"Como se chama a região onde um rio encontra o mar?",a:["Estuário","Cume","Vale glacial","Planície elevada"],c:0},
+  {w:6,q:"Qual oceano circunda a Antártida?",a:["Oceano Antártico","Atlântico Norte","Ártico","Índico apenas"],c:0},
+
+  {w:7,q:"Qual é a montanha mais alta do mundo acima do nível do mar?",a:["K2","Everest","Kilimanjaro","Mont Blanc"],c:1},
+  {w:7,q:"Em qual cordilheira fica o Monte Everest?",a:["Andes","Himalaia","Alpes","Rochosas"],c:1},
+  {w:7,q:"Qual é a grande cordilheira da América do Sul?",a:["Andes","Alpes","Himalaia","Atlas"],c:0},
+  {w:7,q:"Em qual continente fica o Monte Kilimanjaro?",a:["África","Europa","América do Sul","Oceania"],c:0},
+  {w:7,q:"Qual é a cordilheira que atravessa parte da Europa?",a:["Alpes","Andes","Himalaia","Apalaches"],c:0},
+  {w:7,q:"Como se chama o ponto mais alto de uma montanha?",a:["Cume","Foz","Delta","Duna"],c:0},
+  {w:7,q:"Qual é o nome da montanha mais alta da África?",a:["Kilimanjaro","Everest","Aconcágua","Denali"],c:0},
+  {w:7,q:"Qual é a montanha mais alta da América do Sul?",a:["Aconcágua","Everest","K2","Elbrus"],c:0},
+  {w:7,q:"O Himalaia fica principalmente em qual região do mundo?",a:["Ásia","América Central","África Ocidental","Oceania"],c:0},
+  {w:7,q:"Qual processo pode formar montanhas quando placas tectônicas colidem?",a:["Elevação e dobramento","Evaporação","Maré alta","Condensação"],c:0},
+
+  {w:8,q:"Qual bioma brasileiro é conhecido por suas árvores retorcidas e estação seca?",a:["Cerrado","Pampa","Pantanal","Mata de araucárias"],c:0},
+  {w:8,q:"Qual gás é essencial para a respiração humana?",a:["Oxigênio","Hélio","Hidrogênio","Neônio"],c:0},
+  {w:8,q:"Qual é a principal estrela do nosso sistema solar?",a:["Sol","Sirius","Lua","Vênus"],c:0},
+  {w:8,q:"Como se chama a camada de gases ao redor da Terra?",a:["Atmosfera","Litosfera","Hidrosfera","Manto"],c:0},
+  {w:8,q:"Qual fenômeno ocorre quando a água líquida vira vapor?",a:["Evaporação","Condensação","Solidificação","Fusão"],c:0},
+  {w:8,q:"Qual bioma brasileiro é conhecido por áreas alagadas?",a:["Pantanal","Caatinga","Pampa","Cerrado apenas"],c:0},
+  {w:8,q:"Qual é a principal causa das estações do ano?",a:["Inclinação do eixo terrestre e translação","Mudança na distância da Lua","Rotação do Sol ao redor da Terra","Marés"],c:0},
+  {w:8,q:"Qual bioma brasileiro tem vegetação adaptada à seca?",a:["Caatinga","Floresta Amazônica","Mata Atlântica","Pantanal"],c:0},
+  {w:8,q:"Qual camada da Terra é a mais externa e sólida?",a:["Crosta","Núcleo interno","Núcleo externo","Manto inferior"],c:0},
+  {w:8,q:"Qual é uma fonte de energia renovável?",a:["Solar","Carvão mineral","Petróleo","Gás natural"],c:0},
+
+  {w:9,q:"Quantos continentes são geralmente considerados no modelo de seis continentes usado no Brasil?",a:["4","5","6","8"],c:2},
+  {w:9,q:"Qual linha imaginária divide a Terra em hemisférios Norte e Sul?",a:["Equador","Meridiano de Greenwich","Trópico de Câncer","Círculo Polar Ártico"],c:0},
+  {w:9,q:"Qual é o nome do meridiano de longitude zero?",a:["Greenwich","Equador","Trópico de Capricórnio","Linha Internacional da Data"],c:0},
+  {w:9,q:"Qual planeta é conhecido como Planeta Vermelho?",a:["Marte","Vênus","Saturno","Mercúrio"],c:0},
+  {w:9,q:"Qual é o maior país do mundo em área?",a:["Canadá","China","Rússia","Estados Unidos"],c:2},
+  {w:9,q:"Qual é a capital da Espanha?",a:["Madri","Barcelona","Sevilha","Valência"],c:0},
+  {w:9,q:"Qual país tem formato de bota no mapa?",a:["Itália","Grécia","Noruega","Portugal"],c:0},
+  {w:9,q:"Qual é o continente onde fica o Brasil?",a:["América do Sul","Europa","África","Ásia"],c:0},
+  {w:9,q:"Qual instrumento é usado para orientação com pontos cardeais?",a:["Bússola","Termômetro","Barômetro","Cronômetro"],c:0},
+  {w:9,q:"Qual é o ponto cardeal oposto ao Norte?",a:["Sul","Leste","Oeste","Nordeste"],c:0}
+];
+
+const defaultData = {
+  xp:0,
+  unlocked:1,
+  world:1,
+  phase:1,
+  hero:"akira",
+  owned:["akira"],
+  completed:[],
+  achievements:[]
+};
+
+let data;
+try {
+  const saved = localStorage.getItem("geoDadosNovo");
+  data = saved ? {...defaultData,...JSON.parse(saved)} : {...defaultData};
+  if (!Array.isArray(data.owned)) data.owned=["akira"];
+  if (!Array.isArray(data.completed)) data.completed=[];
+  if (!Array.isArray(data.achievements)) data.achievements=[];
+} catch (e) {
+  data = {...defaultData};
 }
-function addBadge(name){if(!data.badges.includes(name))data.badges.push(name);}
-function unlockNinjas(){
- [[100,"🥷 Ninja Cartógrafo"],[300,"🧭 Ninja Navegador"],[600,"🌋 Ninja Geógrafo"],[1000,"🌍 Ninja Mestre"]].forEach(([xp,name])=>{
-  if(data.xp>=xp&&!data.ninjas.includes(name))data.ninjas.push(name);
- });
+
+let currentQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+let currentWorld = 1;
+let currentPhase = 1;
+let roundKey = "";
+let lastResultWon = false;
+
+function save() {
+  try {
+    localStorage.setItem("geoDadosNovo",JSON.stringify(data));
+  } catch (e) {
+    console.warn("Não foi possível salvar o progresso.",e);
+  }
 }
-function updateHome(){
- document.getElementById("headerXP").textContent=data.xp;
- document.getElementById("homeLevel").textContent=level();
- document.getElementById("homeWins").textContent=completedCount();
- document.getElementById("homeBadges").textContent=data.badges.length;
- document.getElementById("homeProgress").style.width=(completedCount()/50*100)+"%";
- document.getElementById("homeMessage").textContent="Você está no nível "+level()+". Continue explorando!";
- document.getElementById("ninjaList").textContent=data.ninjas.join(" • ");
- document.getElementById("badgeList").textContent=data.badges.length?data.badges.join(" • "):"🔒 Complete fases para conquistar medalhas.";
+
+function level() {
+  return Math.floor(data.xp/200)+1;
 }
-function hideAll(){
- ["home","worldScreen","stageScreen","quizScreen","resultScreen"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+
+function stageNumber(world,phase) {
+  return (world-1)*5+phase;
 }
-function showHome(){hideAll();document.getElementById("home").classList.remove("hidden");updateHome();}
-function showWorlds(){
- hideAll();document.getElementById("worldScreen").classList.remove("hidden");
- const grid=document.getElementById("worldGrid");grid.innerHTML="";
- worlds.forEach((w,i)=>{
-  const unlocked=i===0||isDone(i-1,5);
-  const done=Array.from({length:5},(_,n)=>isDone(i,n+1)).filter(Boolean).length;
-  const b=document.createElement("button");
-  b.className="world"+(unlocked?"":" locked");
-  b.innerHTML=`<span class="emoji">${unlocked?w.emoji:"🔒"}</span><b>${i+1}. ${w.name}</b><small>${w.desc}<br>${done}/5 fases concluídas</small>`;
-  b.disabled=!unlocked;b.onclick=()=>showStages(i);grid.appendChild(b);
- });
+
+function isUnlocked(world,phase) {
+  return stageNumber(world,phase) <= data.unlocked;
 }
-function showStages(w){
- currentWorld=w;hideAll();document.getElementById("stageScreen").classList.remove("hidden");
- document.getElementById("stageTitle").textContent=worlds[w].emoji+" "+worlds[w].name;
- document.getElementById("stageDescription").textContent=worlds[w].desc+" — complete 10 perguntas em cada fase.";
- const grid=document.getElementById("stageGrid");grid.innerHTML="";
- for(let s=1;s<=5;s++){
-  const unlocked=isUnlocked(w,s),done=isDone(w,s),b=document.createElement("button");
-  b.className="world"+(unlocked?"":" locked");
-  b.innerHTML=`<span class="emoji">${done?"✅":unlocked?"🎯":"🔒"}</span><b>Fase ${s}</b><small>${done?"Concluída":unlocked?"10 perguntas":"Complete a fase anterior"}</small>`;
-  b.disabled=!unlocked;b.onclick=()=>startQuiz(w,s);grid.appendChild(b);
- }
+
+function isDone(world,phase) {
+  return data.completed.includes(stageNumber(world,phase));
 }
-function shuffle(arr){return arr.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);}
-function startQuiz(w,s){
- currentWorld=w;currentStage=s;questionIndex=0;correctCount=0;earned=0;
- const bank=worlds[w].q;
- questions=Array.from({length:10},(_,i)=>{
-  const source=bank[(i+(s-1)*2)%bank.length];
-  return {text:source[0],correct:source[1],answers:source[2].slice()};
- });
- questions=shuffle(questions);
- hideAll();document.getElementById("quizScreen").classList.remove("hidden");
- document.getElementById("quizTag").textContent=worlds[w].emoji+" "+worlds[w].name+" • Fase "+s;
- showQuestion();
+
+function heroName() {
+  const h=heroes.find(x=>x.id===data.hero);
+  return h ? h.name : "Akira";
 }
-function showQuestion(){
- answered=false;
- const q=questions[questionIndex];
- document.getElementById("questionTitle").textContent=`Pergunta ${questionIndex+1} de 10`;
- document.getElementById("quizProgress").style.width=(questionIndex/10*100)+"%";
- document.getElementById("questionCategory").textContent="Teste seus conhecimentos";
- document.getElementById("questionText").textContent=q.text;
- document.getElementById("feedback").textContent="";
- document.getElementById("nextButton").classList.add("hidden");
- const list=document.getElementById("answerList");list.innerHTML="";
- shuffle(q.answers).forEach(answer=>{
-  const b=document.createElement("button");b.className="answer";b.textContent=answer;
-  b.onclick=()=>chooseAnswer(b,answer,q);list.appendChild(b);
- });
+
+function showPage(id) {
+  const page=document.getElementById(id);
+  if (!page) return;
+
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  page.classList.add("active");
+
+  if (id==="home") renderHome();
+  if (id==="map") renderMap();
+  if (id==="heroes") renderHeroes();
+  if (id==="achievements") renderAchievements();
+
+  window.scrollTo({top:0,behavior:"smooth"});
 }
-function chooseAnswer(button,answer,q){
- if(answered)return;answered=true;
- const buttons=[...document.querySelectorAll(".answer")];
- buttons.forEach(b=>{b.disabled=true;if(b.textContent===q.correct)b.classList.add("correct");});
- if(answer===q.correct){
-  correctCount++;earned+=10;document.getElementById("feedback").textContent="✅ Resposta correta! +10 XP";
- }else{
-  button.classList.add("wrong");document.getElementById("feedback").textContent="❌ A resposta correta é: "+q.correct;
- }
- document.getElementById("quizProgress").style.width=((questionIndex+1)/10*100)+"%";
- const next=document.getElementById("nextButton");next.textContent=questionIndex===9?"Ver resultado →":"Próxima pergunta →";next.classList.remove("hidden");
+
+function renderAll() {
+  document.getElementById("xpDisplay").textContent=data.xp;
+  renderHome();
+  renderMap();
+  renderHeroes();
+  renderAchievements();
 }
-function nextQuestion(){
- if(!answered)return;
- questionIndex++;
- if(questionIndex>=10){finishQuiz();return;}
- showQuestion();
+
+function renderHome() {
+  document.getElementById("xpDisplay").textContent=data.xp;
+  document.getElementById("homeLevel").textContent=level();
+
+  const unlockedWorlds=Math.min(
+    worlds.length,
+    Math.max(1,Math.ceil(data.unlocked/5))
+  );
+
+  document.getElementById("homeWorlds").textContent=unlockedWorlds;
+  document.getElementById("homeWins").textContent=data.completed.length;
 }
-function finishQuiz(){
- const first=!isDone(currentWorld,currentStage);
- if(first){
-  data.done[stageKey(currentWorld,currentStage)]=true;
-  data.xp+=earned;
-  if(correctCount===10)addBadge("🏅 Perfeição: 10 acertos");
-  if(completedCount()>=5)addBadge("🗺️ Explorador: 5 fases concluídas");
-  if(completedCount()>=25)addBadge("🌎 Mestre dos mundos: 25 fases concluídas");
-  if(completedCount()>=50)addBadge("👑 Lenda GeoMaster: 50 fases concluídas");
-  unlockNinjas();save();
- }
- hideAll();document.getElementById("resultScreen").classList.remove("hidden");
- document.getElementById("resultTitle").textContent=correctCount>=7?"🎉 Fase concluída!":"💪 Boa tentativa!";
- document.getElementById("resultMessage").textContent=first?"Você terminou a fase e ganhou "+earned+" XP!":"Você já tinha concluído esta fase. Jogue novamente para praticar!";
- document.getElementById("resultCorrect").textContent=correctCount+"/10";
- document.getElementById("resultEarned").textContent=first?earned:0;
- document.getElementById("resultLevel").textContent=level();
- document.getElementById("resultUnlocks").textContent="🥷 Ninjas: "+data.ninjas.join(" • ")+" | 🏆 Conquistas: "+data.badges.length;
- updateHome();
+
+function renderMap() {
+  const container=document.getElementById("worldList");
+  container.innerHTML="";
+
+  worlds.forEach((world,i)=>{
+    const worldNum=i+1;
+    const firstStage=stageNumber(worldNum,1);
+    const unlocked=isUnlocked(worldNum,1);
+    const completed=data.completed.filter(n=>n>=firstStage&&n<firstStage+5).length;
+
+    const card=document.createElement("div");
+    card.className="card"+(unlocked?"":" locked");
+
+    card.innerHTML=`
+      <div class="world-icon">${world.icon}</div>
+      <h3>${worldNum}. ${world.name}</h3>
+      <p>${world.desc}</p>
+      <div class="progress"><div style="width:${completed/5*100}%"></div></div>
+      <p>${completed}/5 fases concluídas</p>
+      <button class="btn ${unlocked?"":"secondary"}"
+        ${unlocked?"":"disabled"}
+        onclick="openWorld(${worldNum})">
+        ${unlocked?"Explorar":"🔒 Bloqueado"}
+      </button>
+    `;
+
+    container.appendChild(card);
+  });
 }
-function resetGame(){
- if(!confirm("Tem certeza de que deseja apagar todo o progresso do GeoMaster?"))return;
- data={xp:0,done:{},badges:[],ninjas:["🥷 Ninja Explorador"]};save();showHome();
+
+function openWorld(worldNum) {
+  if (!isUnlocked(worldNum,1)) return;
+
+  const container=document.getElementById("worldList");
+  const world=worlds[worldNum-1];
+
+  container.innerHTML=`
+    <div class="card" style="grid-column:1/-1">
+      <div class="world-icon">${world.icon}</div>
+      <h2>${world.name}</h2>
+      <p>${world.desc}</p>
+      <p>Escolha uma das cinco fases:</p>
+      <div id="phaseList" class="grid"></div>
+      <button class="btn secondary" onclick="renderMap()">← Todos os mundos</button>
+    </div>
+  `;
+
+  const phases=document.getElementById("phaseList");
+
+  for (let phase=1;phase<=5;phase++) {
+    const unlocked=isUnlocked(worldNum,phase);
+    const done=isDone(worldNum,phase);
+    const card=document.createElement("div");
+    card.className="card"+(unlocked?"":" locked");
+
+    card.innerHTML=`
+      <h3>Fase ${phase}</h3>
+      <p>${done?"✅ Concluída":unlocked?"Disponível":"🔒 Bloqueada"}</p>
+      <button class="btn ${unlocked?"":"secondary"}"
+        ${unlocked?"":"disabled"}
+        onclick="startRound(${worldNum},${phase})">
+        ${done?"Jogar novamente":unlocked?"Jogar":"Bloqueada"}
+      </button>
+    `;
+
+    phases.appendChild(card);
+  }
+
+  window.scrollTo({top:0,behavior:"smooth"});
 }
-showHome();
+
+function renderHeroes() {
+  const container=document.getElementById("heroList");
+  container.innerHTML="";
+
+  heroes.forEach(hero=>{
+    const owned=data.owned.includes(hero.id);
+    const selected=data.hero===hero.id;
+    const canBuy=data.xp>=hero.cost;
+
+    const card=document.createElement("div");
+    card.className="card";
+
+    card.innerHTML=`
+      <div class="ninja">${hero.icon}</div>
+      <h3>${hero.name}</h3>
+      <p>${hero.desc}</p>
+      <p class="gold">${hero.cost===0?"Grátis":"⚡ "+hero.cost+" XP"}</p>
+      <button class="btn ${selected?"secondary":""}"
+        ${selected?"disabled":""}
+        onclick="selectHero('${hero.id}')">
+        ${selected?"Selecionado":owned?"Selecionar":canBuy?"Desbloquear":"XP insuficiente"}
+      </button>
+    `;
+
+    if (!owned && !canBuy) {
+      card.querySelector("button").disabled=true;
+    }
+
+    container.appendChild(card);
+  });
+}
+
+function selectHero(id) {
+  const hero=heroes.find(h=>h.id===id);
+  if (!hero) return;
+
+  if (!data.owned.includes(id)) {
+    if (data.xp<hero.cost) {
+      alert("Você ainda não tem XP suficiente!");
+      return;
+    }
+
+    data.xp-=hero.cost;
+    data.owned.push(id);
+  }
+
+  data.hero=id;
+  save();
+  renderAll();
+}
+
+function continueGame() {
+  let stage=Math.min(data.unlocked,worlds.length*5);
+  let world=Math.floor((stage-1)/5)+1;
+  let phase=((stage-1)%5)+1;
+
+  if (!isUnlocked(world,phase)) {
+    world=1;
+    phase=1;
+  }
+
+  startRound(world,phase);
+}
+
+function startRound(world,phase) {
+  if (!isUnlocked(world,phase)) {
+    alert("Essa fase ainda está bloqueada!");
+    return;
+  }
+
+  currentWorld=world;
+  currentPhase=phase;
+  roundKey=String(stageNumber(world,phase));
+  currentIndex=0;
+  score=0;
+  answered=false;
+
+  const relevant=questions.filter(q=>q.w===world-1);
+  const pool=relevant.length?relevant:questions;
+
+  currentQuestions=[];
+
+  // Seleciona dez perguntas, distribuídas pelo banco disponível.
+  for (let i=0;i<10;i++) {
+    const index=(i*7+phase-1)%pool.length;
+    currentQuestions.push(pool[index]);
+  }
+
+  // Embaralha a ordem das perguntas sem alterar as respostas.
+  currentQuestions.sort(()=>Math.random()-0.5);
+
+  document.getElementById("gameWorld").textContent=
+    worlds[world-1].icon+" "+worlds[world-1].name+" • Fase "+phase;
+
+  document.getElementById("gameNinja").textContent=
+    heroes.find(h=>h.id===data.hero)?.icon||"🥷";
+
+  showPage("game");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered=false;
+
+  const q=currentQuestions[currentIndex];
+
+  document.getElementById("questionCount").textContent=
+    "Pergunta "+(currentIndex+1)+"/"+currentQuestions.length;
+
+  document.getElementById("questionProgress").style.width=
+    (currentIndex/currentQuestions.length*100)+"%";
+
+  document.getElementById("questionText").textContent=q.q;
+  document.getElementById("feedback").textContent="";
+  document.getElementById("nextBtn").hidden=true;
+
+  const container=document.getElementById("answers");
+  container.innerHTML="";
+
+  q.a.forEach((answer,index)=>{
+    const btn=document.createElement("button");
+    btn.className="answer";
+    btn.textContent=String.fromCharCode(65+index)+") "+answer;
+    btn.onclick=()=>chooseAnswer(index);
+    container.appendChild(btn);
+  });
+}
+
+function chooseAnswer(index) {
+  if (answered) return;
+  answered=true;
+
+  const q=currentQuestions[currentIndex];
+  const buttons=document.querySelectorAll("#answers .answer");
+  buttons.forEach((btn,i)=>{
+    btn.disabled=true;
+    if (i===q.c) btn.classList.add("correct");
+  });
+
+  const feedback=document.getElementById("feedback");
+
+  if (index===q.c) {
+    score++;
+    feedback.textContent="✅ Resposta correta!";
+    feedback.style.color="var(--mint)";
+  } else {
+    buttons[index].classList.add("wrong");
+    feedback.textContent="❌ Resposta incorreta. A certa era: "+q.a[q.c];
+    feedback.style.color="var(--red)";
+  }
+
+  document.getElementById("questionProgress").style.width=
+    ((currentIndex+1)/currentQuestions.length*100)+"%";
+
+  const nextBtn=document.getElementById("nextBtn");
+  nextBtn.textContent=currentIndex===currentQuestions.length-1?
+    "Ver resultado 🏆":"Próxima pergunta →";
+  nextBtn.hidden=false;
+}
+
+function nextQuestion() {
+  if (!answered) return;
+
+  currentIndex++;
+
+  if (currentIndex<currentQuestions.length) {
+    renderQuestion();
+  } else {
+    finishRound();
+  }
+}
+
+function finishRound() {
+  const won=score>=7;
+  lastResultWon=won;
+
+  let gainedXP=0;
+
+  if (won) {
+    gainedXP=score*10+50;
+    data.xp+=gainedXP;
+
+    const stage=stageNumber(currentWorld,currentPhase);
+    if (!data.completed.includes(stage)) {
+      data.completed.push(stage);
+    }
+
+    data.unlocked=Math.max(
+      data.unlocked,
+      Math.min(stage+1,worlds.length*5)
+    );
+
+    if (score===10) unlockAchievement("perfeito");
+    unlockAchievement("primeira");
+    if (data.completed.length>=5) unlockAchievement("cinco");
+    if (data.completed.length>=10) unlockAchievement("dez");
+    if (data.xp>=500) unlockAchievement("xp500");
+  }
+
+  save();
+  renderAll();
+
+  document.getElementById("resultIcon").textContent=won?"🏆":"💪";
+  document.getElementById("resultTitle").textContent=
+    won?"Fase concluída!":"Quase lá!";
+
+  document.getElementById("resultText").textContent=won?
+    "Parabéns, ninja! Você venceu e avançou na aventura.":
+    "Você precisa de pelo menos 7 acertos. Tente novamente para avançar!";
+
+  document.getElementById("resultScore").textContent=score+"/10";
+  document.getElementById("resultXP").textContent="+"+gainedXP;
+  document.getElementById("resultLevel").textContent=level();
+
+  const btn=document.getElementById("resultMainBtn");
+  btn.textContent=won?"Próxima fase →":"Tentar novamente";
+  btn.onclick=won?continueAfterWin:retryRound;
+
+  showPage("result");
+}
+
+function continueAfterWin() {
+  if (currentPhase<5) {
+    startRound(currentWorld,currentPhase+1);
+  } else if (currentWorld<worlds.length) {
+    startRound(currentWorld+1,1);
+  } else {
+    showPage("map");
+  }
+}
+
+function retryRound() {
+  startRound(currentWorld,currentPhase);
+}
+
+function leaveGame() {
+  if (confirm("Quer sair desta fase? Seu resultado atual não será contado.")) {
+    showPage("map");
+  }
+}
+
+const achievementDefinitions = [
+  {id:"primeira",icon:"🌟",name:"Primeira vitória",desc:"Conclua sua primeira fase."},
+  {id:"perfeito",icon:"🎯",name:"Perfeição",desc:"Acerte as dez perguntas de uma fase."},
+  {id:"cinco",icon:"🗺️",name:"Explorador",desc:"Conclua cinco fases."},
+  {id:"dez",icon:"🌎",name:"Viajante mundial",desc:"Conclua dez fases."},
+  {id:"xp500",icon:"⚡",name:"Mestre da experiência",desc:"Acumule 500 XP."}
+];
+
+function unlockAchievement(id) {
+  if (!data.achievements.includes(id)) {
+    data.achievements.push(id);
+  }
+}
+
+function renderAchievements() {
+  const container=document.getElementById("achievementList");
+  if (!container) return;
+
+  container.innerHTML="";
+
+  achievementDefinitions.forEach(item=>{
+    const unlocked=data.achievements.includes(item.id);
+    const card=document.createElement("div");
+    card.className="card";
+    card.style.marginBottom="10px";
+    card.style.opacity=unlocked?"1":".55";
+
+    card.innerHTML=`
+      <h3>${item.icon} ${item.name} ${unlocked?"✅":"🔒"}</h3>
+      <p>${item.desc}</p>
+      <span class="badge">${unlocked?"Desbloqueada":"Ainda bloqueada"}</span>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+renderAll();
 </script>
 </body>
 </html>
